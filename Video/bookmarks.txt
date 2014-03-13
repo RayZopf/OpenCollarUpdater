@@ -1,0 +1,11 @@
+Links for Git visualization
+
+http://ghv.artzub.com/
+https://code.google.com/p/gource/
+
+http://redotheweb.com/CodeFlower/
+https://code.google.com/p/codeswarm/
+
+https://github.com/Haacked/SeeGit
+
+http://pcottle.github.io/learnGitBranching/
