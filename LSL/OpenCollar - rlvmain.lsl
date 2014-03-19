@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - rlvmain                               //
-//                                 version 3.934                                  //
+//                                 version 3.956                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -91,6 +91,8 @@ string g_sScript;
 
 string g_sRlvVersionString="(unknown)";
 
+//re make rlv restrictions after teleport or region change, because SL seems to be losing them
+integer g_iTimestamp;  //stores time of the last request for RLV to refresh
 
 integer g_iLastDetach; //unix time of the last detach: used for checking if the detached time was small enough for not triggering the ping mechanism
 
@@ -473,7 +475,7 @@ default{
         llSleep(1.0);
         llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sScript + "on", NULL_KEY);
         // Ensure that menu script knows we're here.
-        llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID)
@@ -746,6 +748,11 @@ state checked {
             }
             else if (iNum == RLV_CMD)
             {
+                //re make rlv restrictions after teleport or region change, because SL seems to be losing them
+                if (llGetUnixTime()-g_iTimestamp >= 30){   //if we asked for refresh less than 30 seconds ago
+                    llOwnerSay("@"+sStr);               //refresh the restriction
+                }
+                
                 list sCommands=llParseString2List(sStr,[","],[]);
                 integer i;
                 for (i=0;i<llGetListLength(sCommands);i++) HandleCommand(kID,llList2String(sCommands,i));
@@ -813,6 +820,11 @@ state checked {
     changed(integer change) {
         if (change & CHANGED_OWNER) {
             llResetScript();
+        }
+        //re make rlv restrictions after teleport or region change, because SL seems to be losing them
+        if (change & CHANGED_TELEPORT || change & CHANGED_REGION) {   //if we teleported, or changed regions
+            llMessageLinked(LINK_SET, RLV_REFRESH, "", NULL_KEY);              //request refresh
+            g_iTimestamp==llGetUnixTime();                              //remember when we requested it
         }
     }
 }

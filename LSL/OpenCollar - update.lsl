@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - update                               //
-//                                 version 3.953                                  //
+//                                 version 3.955                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -224,8 +224,8 @@ Init()
     news_request = llHTTPRequest(news_url, [HTTP_METHOD, "GET"], "");
 
     // register menu buttons
-    llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_DO_UPDATE, NULL_KEY);
-    llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_GET_UPDATE, NULL_KEY);
+    //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_DO_UPDATE, NULL_KEY);
+    //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_GET_UPDATE, NULL_KEY);
     //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_GET_VERSION, NULL_KEY);    
 }
 
@@ -453,6 +453,19 @@ default
             string sToken = llList2String(lParams, 0);
             string sValue = llList2String(lParams, 1);
             if (sToken == "Global_CType") CTYPE = sValue;
+        }
+        // need to answer the request version
+        else if (num == LM_SETTING_REQUEST)
+        {
+            list lParams = llParseString2List(str, ["="], []);
+            string sToken = llList2String(lParams, 0);
+            //string sValue = llList2String(lParams, 1);
+            if (sToken == "collarversion") 
+            {
+                if ((float)g_sRelease_version > (float)my_version)
+                     llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,"collarversion="+(string)my_version+"=0","");
+                else llMessageLinked(LINK_THIS,LM_SETTING_RESPONSE,"collarversion="+(string)my_version+"=1","");
+            }
         }
     }
 

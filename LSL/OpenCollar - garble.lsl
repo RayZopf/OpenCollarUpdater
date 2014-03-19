@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - garble                               //
-//                                 version 3.930                                  //
+//                                 version 3.956                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -185,9 +185,9 @@ default
         gsWear = llKey2Name(gkWear);
         giCRC = llRound(llFrand(499) + 1);
         if (bOn) release(gkWear);
-        llMessageLinked(LINK_THIS, LM_SETTING_REQUEST, "listener_safeword", gkWear);
-        llMessageLinked(LINK_THIS, LM_SETTING_REQUEST, GetScriptID() + "Binder", gkWear);
-        llSleep(1.0);
+        llMessageLinked(LINK_THIS, LM_SETTING_REQUEST, "listener_safeword", NULL_KEY);
+        llMessageLinked(LINK_THIS, LM_SETTING_REQUEST, GetScriptID() + "Binder", NULL_KEY);
+        //llSleep(1.0);
     }
     listen(integer _c, string _n, key _k, string _m)
     {

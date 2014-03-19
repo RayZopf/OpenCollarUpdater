@@ -1,15 +1,21 @@
+SCRIPT|OpenCollar - touch
 SCRIPT|OpenCollar - getavi
 SCRIPT|OpenCollar - interface
-SCRIPT|OpenCollar - keyholder
-SCRIPT|OpenCollar - keyholder plugin
 SCRIPT|OpenCollar - remoteserver
 SCRIPT|OpenCollar - anim/pose
 SCRIPT|OpenCollar - cmdupdate
 SCRIPT|OpenCollar - techlabel
 SCRIPT|OpenCollar - BMC
+SCRIPT|OpenCollar - realleash
 SCRIPT|OpenCollar - real leash - 0.1
 SCRIPT|OpenCollar - real leash - 0.2
+ITEM|How to set up your #RLV and use SmartStrip
+ITEM|OpenCollar RLV Relay Help
+ITEM|OpenCollar Updater
+ITEM|OpenCollar Sub AO
 ITEM|Ball&Chain
+ITEM|chain
+ITEM|rope
 ITEM|brushedmetal-hshaded-contrasty
 ITEM|brushedmetal-hshaded
 ITEM|brushedmetal-roundshaded

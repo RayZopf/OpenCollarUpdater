@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                           OpenCollar - leashParticle                           //
-//                                 version 3.934                                  //
+//                                 version 3.955                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -175,7 +175,8 @@ string g_sParticleTexture = "chain";
 string g_sParticleTextureID; //we need the UUID for llLinkParticleSystem
 float g_fLeashLength;
 vector g_vLeashColor = <1,1,1>;
-vector g_vLeashSize = <0.22, 0.17, 0.0>;    // CHANGED FROM DEFAULT <0.07, 0.07, 1.0>, JEAN SEVERINE 2012-02-22
+//vector g_vLeashSize = <0.22, 0.17, 0.0>;    // CHANGED FROM DEFAULT <0.07, 0.07, 1.0>, JEAN SEVERINE 2012-02-22
+vector g_vLeashSize = <0.07, 0.07, 1.0>;    // CHANGED back
 integer g_bParticleGlow = TRUE;
 float g_fParticleAge = 1.0;
 float g_fParticleAlpha = 1.0;
@@ -330,18 +331,26 @@ string GetDefaultSetting(string sSetting)
 // Added bSave as a boolean, to make this a more versatile wrapper
 SetTexture(string sIn, key kIn)
 {
-    g_sParticleTexture = sIn;
-    if (llToLower(g_sParticleTexture) == "noleash")
-    {
-        g_bInvisibleLeash = TRUE;
-    }
-    else
-    {
-        g_bInvisibleLeash = FALSE;
-    }
-    debug("particleTexture= " + sIn);
-    g_sParticleTextureID = llGetInventoryKey(sIn);
-    if(g_sParticleTextureID == NULL_KEY) g_sParticleTextureID=sIn; //for textures without full perm, we send the texture name. For this to work, texture must be in the emitter prim as well as in root, if different.
+    if (sIn=="chain"){
+        g_sParticleTextureID="4cde01ac-4279-2742-71e1-47ff81cc3529";
+    } else if (sIn=="rope"){
+        g_sParticleTextureID="9a342cda-d62a-ae1f-fc32-a77a24a85d73";
+    } else if (sIn=="totallytransparent"){
+        g_sParticleTextureID="bd7d7770-39c2-d4c8-e371-0342ecf20921";
+    } else {
+        g_sParticleTexture = sIn;
+        if (llToLower(g_sParticleTexture) == "noleash")
+        {
+            g_bInvisibleLeash = TRUE;
+        }
+        else
+        {
+            g_bInvisibleLeash = FALSE;
+        }
+        debug("particleTexture= " + sIn);
+        g_sParticleTextureID = llGetInventoryKey(sIn);
+        if(g_sParticleTextureID == NULL_KEY) g_sParticleTextureID=sIn; //for textures without full perm, we send the texture name. For this to work, texture must be in the emitter prim as well as in root, if different.
+    }        
     debug("particleTextureID= " + (string)g_sParticleTextureID);
     if (kIn)
     {
@@ -398,7 +407,7 @@ DensityMenu(key kIn, integer iAuth)
     list lButtons = ["Default", "+", "-"];
     g_sCurrentMenu = L_DENSITY;
     string sPrompt = "\n\nChoose '+' for more and '-' for less particles\n'Default' to revert to the default\n\nCurrent Density = ";
-    sPrompt += Float2String(-g_fBurstRate);// BurstRate is opposite the implied effect of density
+    sPrompt += Float2String(-g_fBurstRate) + "\nDefault: -0.04" ;// BurstRate is opposite the implied effect of density
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
@@ -407,7 +416,7 @@ GravityMenu(key kIn, integer iAuth)
     list lButtons = ["Default", "+", "-", "noGravity"];
     g_sCurrentMenu = L_GRAVITY;
     string sPrompt = "\n\nChoose '+' for more and '-' for less leash-gravity\n'Default' to revert to the default\n\nCurrent Gravity = ";
-    sPrompt += Float2String(g_vLeashGravity.z) + "\nDefault: 1.0";
+    sPrompt += Float2String(g_vLeashGravity.z) + "\nDefault: -1.0";
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
@@ -448,7 +457,7 @@ ColorMenu(key kIn, integer iAuth)
 
 TextureMenu(key kIn, integer iAuth)
 {
-    list lButtons = ["Default"];
+    list lButtons = ["Default", "chain","rope"];
     integer iLoop;
     string sName;
     integer iCount = llGetInventoryNumber(0);
@@ -497,13 +506,12 @@ default
     state_entry()
     {
         g_sScript = llStringTrim(llList2String(llParseString2List(llGetScriptName(), ["-"], []), 1), STRING_TRIM) + "_";
-        g_lDefaultSettings = [L_TEXTURE, g_sParticleTexture, L_SIZE, "<0.22, 0.17, 0.0>",
-        L_COLOR, "<1,1,1>", L_DENSITY, "0.04", L_GRAVITY, "<0.0,0.0,-1.0>", "Glow", "1"];   // CHANGED DEFAULT SIZE FOR ST TO <0.22, 0.17, 0.0>
+        g_lDefaultSettings = [L_TEXTURE, "chain", L_SIZE, "<0.22, 0.17, 0.0>", L_COLOR, "<1,1,1>", L_DENSITY, "-0.04", L_GRAVITY, "<0.0,0.0,-1.0>", "Glow", "1", L_LIFE, "3.0"]; // CHANGED DEFAULT SIZE FOR ST TO <0.22, 0.17, 0.0>
         StopParticles(TRUE);
         FindLinkedPrims();
         SetTexture(g_sParticleTexture, NULLKEY);
-        llSleep(1.0);
-        llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENTMENU + "|" + SUBMENU, NULL_KEY);
+        //llSleep(1.0);
+        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENTMENU + "|" + SUBMENU, NULL_KEY);
         g_kWearer = llGetOwner();
         //llOwnerSay((string)llGetFreeMemory());
         SetTexture("chain", NULLKEY);
@@ -582,7 +590,7 @@ default
                 }
             }
         }
-        else if (iNum == MENUNAME_REQUEST)
+        else if (iNum == MENUNAME_REQUEST && sMessage == PARENTMENU)
         {
             llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENTMENU + "|" + SUBMENU, NULL_KEY);
         }
@@ -905,7 +913,7 @@ default
                     if (llToLower(sValue) == "off") g_bParticleGlow = FALSE;
                     else g_bParticleGlow = TRUE;
                 }
-                SaveDefaultSettings(sToken, sValue);
+                //SaveDefaultSettings(sToken, sValue); // no change particle defaultsetting!
             }
             else if (sToken == "Global_CType") CTYPE = sValue;
             // in case wearer is currently leashed

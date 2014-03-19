@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                               OpenCollar - anim                                //
-//                                 version 3.952                                  //
+//                                 version 3.955                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -347,30 +347,7 @@ StopAnim(string sAnim)
 
 DeliverAO(key kID)
 {
-    /*
-    string sName = "OpenCollar Sub AO";
-    string sVersion = "0.0";
-
-    string sUrl = g_sAppEngine_Url + "updater/check?";
-    sUrl += "object=" + llEscapeURL(sName);
-    sUrl += "&version=" + llEscapeURL(sVersion);
-    llHTTPRequest(sUrl, [HTTP_METHOD, "GET",HTTP_MIMETYPE,"text/plain;charset=utf-8"], "");
-    Notify(kID, "Queuing delivery of " + sName + ".  It should be delivered in about 30 seconds.", FALSE);
-    */
-    integer x=llGetInventoryNumber(INVENTORY_OBJECT);
-    integer index=-1;
-    while (x)
-    {
-        --x;
-        if(llStringTrim(llList2String(llParseString2List(llGetInventoryName(INVENTORY_OBJECT,x),["-"],[]),0),STRING_TRIM)=="OpenCollar Sub AO") {index=x; x=0;}
-    }
-    if(index==-1) Notify(kID,"OpenCollar Sub AO not found! Restore one from the updater",FALSE);
-    else
-    {
-        llGiveInventory(kID,llGetInventoryName(INVENTORY_OBJECT,index));
-        Notify(kID,"OpenCollar Sub AO delivered to your objects folder.",FALSE);
-    }
-    
+    llLoadURL(kID,"Get an up to date Submissive AO for free here.","https://marketplace.secondlife.com/p/OpenCollar-Sub-AO/5493736"); 
 }
 
 integer StartsWith(string sHayStack, string sNeedle) // http://wiki.secondlife.com/wiki/llSubStringIndex
@@ -601,7 +578,7 @@ default
 
         CreateAnimList();
 
-        llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sAnimMenu, NULL_KEY);
+        //llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sAnimMenu, NULL_KEY);
         //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sRootMenu + "|" + g_sAnimMenu, NULL_KEY);
     }
 
@@ -638,8 +615,8 @@ default
         else
         {
             llRequestPermissions(llGetOwner(),PERMISSION_TRIGGER_ANIMATION);
-            g_lAnimButtons = [" Pose", g_sTriggerAO, g_sGiveAO, "AO ON", "AO OFF"];
-            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sAnimMenu, NULL_KEY); //even necessary? Dunno, shoudln't be, but with this, now reproduces old behaviour of resetting on every rez, only without resetting on every rez. -MD
+            //g_lAnimButtons = [" Pose", g_sTriggerAO, g_sGiveAO, "AO ON", "AO OFF"];
+            //llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sAnimMenu, NULL_KEY); //even necessary? Dunno, shoudln't be, but with this, now reproduces old behaviour of resetting on every rez, only without resetting on every rez. -MD
         }
     }
 
@@ -660,6 +637,8 @@ default
         else if (iNum == MENUNAME_REQUEST && sStr == g_sRootMenu)
         {
             llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sRootMenu + "|" + g_sAnimMenu, NULL_KEY);
+            g_lAnimButtons = [" Pose", g_sTriggerAO, g_sGiveAO, "AO ON", "AO OFF"];
+            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sAnimMenu, NULL_KEY);
         }
         else if (iNum == MENUNAME_RESPONSE)
         {
@@ -749,9 +728,8 @@ default
                         AOMenu(kAv, iAuth);
                     }
                     else if (sMessage == g_sGiveAO)
-                    {    //queue a delivery
+                    {   
                         DeliverAO(kAv);
-                        AnimMenu(kAv, iAuth);
                     }
                     else if(sMessage == "AO ON")
                     {

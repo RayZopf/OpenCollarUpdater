@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                            OpenCollar - rlvundress                             //
-//                                 version 3.950                                  //
+//                                 version 3.956                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -29,8 +29,8 @@ list g_lRLVcmds = ["attach","detach","remoutfit", "addoutfit","remattach","addat
 integer g_iSmartStrip=FALSE; //use @detachallthis isntead of remove
 string SMARTON="☐ SmartStrip";
 string SMARTOFF = "☒ SmartStrip";
-string SMARTHELP = "#RLV Help";
-string g_sSmartHelpCard = "How to set up your #RLV and use SmartStrip";
+string SMARTHELP = "Help";
+string g_sSmartHelpCard = "OpenCollar Guide";
 string g_sSmartToken="smartstrip";
 //key g_kSmartUser; //we store the last person to select if they are not wearer/owner, so that it can be switched on for current user without changing setting.
 
@@ -671,11 +671,11 @@ integer UserCommand(integer iNum, string sStr, key kID) // here iNum: auth value
         }
         }
     }
-    else if (sStr == "refreshmenu")
-    {
-        g_lSubMenus = [];
-        llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
-    }
+    //else if (sStr == "refreshmenu")
+    //{
+    //    g_lSubMenus = [];
+    //    llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
+    //}
     else if (sStr == "undress")
     {
         if (!g_iRLVOn)
@@ -719,9 +719,9 @@ default
         g_sScript = llStringTrim(llList2String(llParseString2List(llGetScriptName(), ["-"], []), 1), STRING_TRIM) + "_";
         g_kWearer = llGetOwner();
         g_sWearerName = llKey2Name(g_kWearer);
-        llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
-        llSleep(1.0);
-        llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+        //llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
+        //llSleep(1.0);
+        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID)
@@ -735,6 +735,8 @@ default
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
             llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            g_lSubMenus = []; //flush submenu buttons
+            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
         }
         else if (iNum == LM_SETTING_RESPONSE)
         {   //this is tricky since our db value contains equals signs
@@ -813,7 +815,7 @@ default
                 key kAv = (key)llList2String(lMenuParams, 0);
                 string sMessage = llList2String(lMenuParams, 1);
                 integer iPage = (integer)llList2String(lMenuParams, 2);
-        integer iAuth = (integer)llList2String(lMenuParams, 3);
+                integer iAuth = (integer)llList2String(lMenuParams, 3);
                 if (kID == g_kMainID)
                 {
                     if (sMessage == UPMENU) llMessageLinked(LINK_SET, iAuth, "menu " + g_sParentMenu, kAv);
@@ -825,7 +827,7 @@ default
                     else if (sMessage == "☒ Lock All") { UserCommand(iAuth, "unlockall", kAv); MainMenu(kAv, iAuth); }
                     else if (sMessage == SMARTON) { UserCommand(iAuth, "smartstrip on",kAv); MainMenu(kAv, iAuth);}
                     else if (sMessage == SMARTOFF) { UserCommand(iAuth, "smartstrip off",kAv); MainMenu(kAv, iAuth);}
-                    else if (sMessage == "#RLV Help") { llGiveInventory(kAv,g_sSmartHelpCard); MainMenu(kAv, iAuth);}
+                    else if (sMessage == "Help") { llGiveInventory(kAv,g_sSmartHelpCard); MainMenu(kAv, iAuth);}
                     else if (llListFindList(g_lSubMenus,[sMessage]) != -1)
                     {
                         llMessageLinked(LINK_SET, iAuth, "menu " + sMessage, kAv);
