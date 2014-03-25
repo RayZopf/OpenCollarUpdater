@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - rlvex                                //
-//                                 version 3.937                                 //
+//                                 version 3.957                                 //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -303,24 +303,24 @@ SaveDefaults()
     if (OWNER_DEFAULT == g_iOwnerDefault && SECOWNER_DEFAULT == g_iSecOwnerDefault)
     {
         Debug("Defaults");
-        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "owner", NULL_KEY);
-        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "secowner", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "owner", "");
+        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "secowner", "");
         return;
     }
     Debug("ownerdef: " + (string)g_iOwnerDefault + "\nsecdef: " + (string)g_iSecOwnerDefault);
-    llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "owner=" + (string)g_iOwnerDefault, NULL_KEY);
-    llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "secowner=" + (string)g_iSecOwnerDefault, NULL_KEY);
+    llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "owner=" + (string)g_iOwnerDefault, "");
+    llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "secowner=" + (string)g_iSecOwnerDefault, "");
 }
 SaveSettings()
 {
     //save to local settings
     if (llGetListLength(g_lSettings))
     {
-        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), "");
     }
     else
     {
-        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", "");
     }
 }
 
@@ -329,8 +329,8 @@ ClearSettings()
     //clear settings list
     g_lSettings = [];
     //remove tpsettings from DB... now done by httpdb itself
-    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "owner", NULL_KEY);
-    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "secowner", NULL_KEY);
+    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "owner", "");
+    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "secowner", "");
     //main RLV script will take care of sending @clear to viewer
     //avoid race conditions
     llSleep(1.0);
@@ -718,8 +718,8 @@ default
         g_kTmpKey = NULL_KEY;
         g_sTmpName = "";
         //llSleep(1.0);
-        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
-        //llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sDBToken, NULL_KEY);
+        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+        //llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sDBToken, "");
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID)
@@ -727,7 +727,7 @@ default
         if (UserCommand(iNum, sStr, kID)) return;
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         }
         else if (iNum == LM_SETTING_RESPONSE)
         {

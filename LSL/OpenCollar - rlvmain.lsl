@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - rlvmain                               //
-//                                 version 3.956                                  //
+//                                 version 3.957                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -381,7 +381,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
     if(sStr=="runaway") // some scripts reset on runaway, we want to resend RLV state.
     {
         llSleep(2); //give some time for scripts to get ready.
-        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on="+(string)g_iRLVOn, NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on="+(string)g_iRLVOn, "");
     }
     else if (iNum > COMMAND_EVERYONE || iNum < COMMAND_OWNER) return FALSE; // sanity check
     list lParams = llParseString2List(sStr, [" "], []);
@@ -397,7 +397,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
     }
     else if (sStr == "rlvon")
     {
-        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on=1", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on=1", "");
         g_iRLVOn = TRUE;
         g_iVerbose = TRUE;
         if (TRUE) state default;
@@ -408,12 +408,12 @@ integer UserCommand(integer iNum, string sStr, key kID)
         if (sOnOff == "on")
         {
             g_iRLVNotify = TRUE;
-            llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "notify=1", NULL_KEY);
+            llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "notify=1", "");
         }
         else if (sOnOff == "off")
         {
             g_iRLVNotify = FALSE;
-            llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "notify=0", NULL_KEY);
+            llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "notify=0", "");
         }
     }
     else if (!g_iRLVOn || !g_iViewerCheck) return TRUE;
@@ -432,7 +432,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
     }
     else if (sStr == "rlvon")
     {
-        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on=1", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on=1", "");
         g_iRLVOn = TRUE;
         g_iVerbose = TRUE;
         if (TRUE) state default;
@@ -442,7 +442,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
         if (iNum == COMMAND_OWNER)
         {
             g_iRLVOn = FALSE;
-            llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on=0", NULL_KEY);
+            llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "on=0", "");
             SafeWord(TRUE);
             llMessageLinked(LINK_SET, RLV_OFF, "", NULL_KEY);
         }
@@ -473,9 +473,9 @@ default{
         g_kWearer = llGetOwner();
         //request setting from DB
         llSleep(1.0);
-        llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sScript + "on", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sScript + "on", "");
         // Ensure that menu script knows we're here.
-        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID)
@@ -537,13 +537,13 @@ default{
         }
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         }
         else if (iNum >= COMMAND_OWNER && iNum <= COMMAND_WEARER && sStr == "menu "+g_sSubMenu)
         {   //someone clicked "RLV" on the main menu.  Tell them we're not ready yet.
             Notify(kID, "Still querying for viewer version.  Please try again in a minute.", FALSE);
            // llResetScript();//Nan: why do we reset here?! SA: maybe so we retry querying RLV? MD: I'm removing this, cos it means that if someone attempts to get the RLV menu while querying, restrictions list will be cleared, and hence owner will not be notified. Also protection from people menu mashing out of confusion. 1 minute (2 before I changed it!) is enough for querying, surely?
-            llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sScript + "on", NULL_KEY); //MD: Why? In case we've got a timing screwup on an update/reset. This should resolve the llResetScript() question above.
+            llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sScript + "on", ""); //MD: Why? In case we've got a timing screwup on an update/reset. This should resolve the llResetScript() question above.
         }
     }
 
@@ -652,7 +652,7 @@ state checked {
         //we only need to request submenus if rlv is turned on and running
         if (g_iRLVOn && g_iViewerCheck)
         {   //ask RLV plugins to tell us about their rlv submenus
-            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, "");
             //tell rlv plugins to reinstate restrictions  (and wake up the relay listener... so that it can at least hear !pong's!
             llMessageLinked(LINK_SET, RLV_REFRESH, "", NULL_KEY);
             llSleep(5); //Make sure the relay is ready before pinging
@@ -671,12 +671,12 @@ state checked {
             llSetTimerEvent(2);
         }
         // Ensure that menu script knows we're here.
-        llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+        llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu) {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         }
         else if (iNum == COMMAND_NOAUTH) return; // SA: TODO remove later
         else if (UserCommand(iNum, sStr, kID)) return;

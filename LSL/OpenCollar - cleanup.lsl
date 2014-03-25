@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - cleanup                              //
-//                                 version 3.928                                  //
+//                                 version 3.957                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -65,6 +65,18 @@ default
             Debug("In an updater.  Sleeping.");
             llSetScriptState(llGetScriptName(), FALSE);
         }    
+
+        key transKey="bd7d7770-39c2-d4c8-e371-0342ecf20921";
+        integer primNumber=llGetNumberOfPrims()+1;
+        while (primNumber--){
+            integer numOfSides = llGetNumberOfSides();
+            while (numOfSides--){
+                key texture=llList2String(llGetLinkPrimitiveParams(primNumber,[PRIM_TEXTURE,numOfSides]),0);
+                if (texture == transKey || texture == TEXTURE_PLYWOOD){
+                    llSetLinkPrimitiveParamsFast(primNumber,[PRIM_TEXTURE,numOfSides,TEXTURE_TRANSPARENT,<1,1,1>,<0,0,0>,0]);
+                }
+            }
+        }
 
         DelItems(garbage);
 

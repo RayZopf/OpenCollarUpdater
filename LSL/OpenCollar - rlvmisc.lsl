@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - rlvmisc                               //
-//                                 version 3.956                                  //
+//                                 version 3.957                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -220,7 +220,7 @@ UpdateSettings()
 
 SaveSetting(string token, string value)
 {
-    llMessageLinked(LINK_THIS, LM_SETTING_SAVE, g_sScript + token + "=" + value, NULL_KEY);
+    llMessageLinked(LINK_THIS, LM_SETTING_SAVE, g_sScript + token + "=" + value, "");
 }
 
 ClearSettings()
@@ -229,7 +229,7 @@ ClearSettings()
     for (; i < llGetListLength(g_lSettings); i += 2)
     {
         string token = g_sScript + llList2String(g_lSettings, i);
-        llMessageLinked(LINK_SET, LM_SETTING_DELETE, token, NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_DELETE, token, "");
     }
     g_lSettings = [];
 }
@@ -319,15 +319,15 @@ default
         g_kWearer = llGetOwner();
         g_lDescriptions += ["See hover text from " + CTYPE];
         // llSleep(1.0);
-        // llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
-        //llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sDBToken, NULL_KEY);
+        // llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+        //llMessageLinked(LINK_SET, LM_SETTING_REQUEST, g_sDBToken, "");
     }
     
     link_message(integer iSender, integer iNum, string sStr, key kID)
     {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         }
         else if (UserCommand(iNum, sStr, kID)) return;
         else if (iNum == LM_SETTING_RESPONSE)
@@ -345,6 +345,7 @@ default
                 i = llListFindList(g_lSettings, [sToken]);
                 if (~i) g_lSettings = llListReplaceList(g_lSettings, [sValue], i+1, i+1);
                 else g_lSettings += [sToken, sValue];
+                UpdateSettings();
             }
             else if (sToken == "Global_CType") CTYPE = sValue;
             else if (sStr == "settings=set") UpdateSettings();

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - rlvsit                               //
-//                                 version 3.934                                  //
+//                                 version 3.957                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -241,9 +241,9 @@ SaveSettings()
 {
     //save to DB
     if (llGetListLength(g_lSettings)>0)
-        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), "");
     else
-        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", "");
 
 }
 
@@ -252,7 +252,7 @@ ClearSettings()
     //clear settings list
     g_lSettings = [];
     //remove tpsettings from DB
-    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", NULL_KEY);
+    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", "");
     //main RLV script will take care of sending @clear to viewer
 }
 
@@ -289,7 +289,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
     else if ((sStr == "reset" || sStr == "runaway") && (iNum == COMMAND_OWNER || iNum == COMMAND_WEARER))
     {
         //clear db, reset script
-        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sDBToken, NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sDBToken, "");
         llResetScript();
     }
 */
@@ -468,7 +468,7 @@ default
     {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         }
         else if (UserCommand(iNum, sStr, kID)) return;
         else if (iNum == LM_SETTING_RESPONSE)

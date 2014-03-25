@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                            OpenCollar - rlvundress                             //
-//                                 version 3.956                                  //
+//                                 version 3.957                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -404,7 +404,7 @@ ClearSettings()
     g_lLockedAttach=[];
     SaveLockAllFlag(0);
     //remove tpsettings from DB
-    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", NULL_KEY);
+    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", "");
     //main RLV script will take care of sending @clear to viewer
 }
 
@@ -418,12 +418,12 @@ SaveLockAllFlag(integer iSetting)
     if(iSetting > 0)
     {
         //save the flag to the database
-        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "LockAll=Y", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "LockAll=Y", "");
     }
     else
     {
         //delete the flag from the database
-        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "LockAll", NULL_KEY);
+        llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "LockAll", "");
     }
 }
 
@@ -458,14 +458,14 @@ integer UserCommand(integer iNum, string sStr, key kID) // here iNum: auth value
             if(sOpt == "on")
             {
                 g_iSmartStrip=TRUE;
-                llMessageLinked(LINK_SET,LM_SETTING_SAVE, g_sScript + g_sSmartToken +"=1",NULL_KEY);
+                llMessageLinked(LINK_SET,LM_SETTING_SAVE, g_sScript + g_sSmartToken +"=1","");
                 
                 
             }
             else
             {
                 g_iSmartStrip=FALSE;
-                llMessageLinked(LINK_SET,LM_SETTING_DELETE, g_sScript + g_sSmartToken,NULL_KEY);
+                llMessageLinked(LINK_SET,LM_SETTING_DELETE, g_sScript + g_sSmartToken,"");
 
             }
         }
@@ -525,7 +525,7 @@ integer UserCommand(integer iNum, string sStr, key kID) // here iNum: auth value
                 {   //we already have a setting for this option.  update it.
                     g_lSettings = llListReplaceList(g_lSettings, [sOption, sParam], iIndex, iIndex + 1);
                 }
-                llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), NULL_KEY);
+                llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), "");
             }
             else if (sParam == "y")
             {
@@ -534,9 +534,9 @@ integer UserCommand(integer iNum, string sStr, key kID) // here iNum: auth value
                     g_lSettings = llDeleteSubList(g_lSettings, iIndex, iIndex + 1);
                 }
                 if (llGetListLength(g_lSettings)>0)
-                    llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), NULL_KEY);
+                    llMessageLinked(LINK_SET, LM_SETTING_SAVE, g_sScript + "List=" + llDumpList2String(g_lSettings, ","), "");
                 else
-                    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", NULL_KEY);
+                    llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "List", "");
             }
         }
     }
@@ -674,7 +674,7 @@ integer UserCommand(integer iNum, string sStr, key kID) // here iNum: auth value
     //else if (sStr == "refreshmenu")
     //{
     //    g_lSubMenus = [];
-    //    llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
+    //    llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, "");
     //}
     else if (sStr == "undress")
     {
@@ -719,9 +719,9 @@ default
         g_sScript = llStringTrim(llList2String(llParseString2List(llGetScriptName(), ["-"], []), 1), STRING_TRIM) + "_";
         g_kWearer = llGetOwner();
         g_sWearerName = llKey2Name(g_kWearer);
-        //llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
+        //llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, "");
         //llSleep(1.0);
-        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID)
@@ -734,9 +734,9 @@ default
         else if (iNum == RLV_ON) g_iRLVOn=TRUE;
         else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
             g_lSubMenus = []; //flush submenu buttons
-            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, "");
         }
         else if (iNum == LM_SETTING_RESPONSE)
         {   //this is tricky since our db value contains equals signs

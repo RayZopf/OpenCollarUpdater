@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - rlvrelay                              //
-//                                 version 3.955                                  //
+//                                 version 3.957                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -178,7 +178,7 @@ SaveSettings()
         +",avwhitelistnames:"+llDumpList2String(g_lAvWhiteListNames,"/");
     if ( g_lAvBlackList != [] ) sNewSettings+=",avblacklist:"+llDumpList2String(g_lAvBlackList,"/")
         +",avblacklistnames:"+llDumpList2String(g_lAvBlackListNames,"/");
-    llMessageLinked(LINK_SET, LM_SETTING_SAVE, sNewSettings, NULL_KEY);
+    llMessageLinked(LINK_SET, LM_SETTING_SAVE, sNewSettings, "");
 }
 
 UpdateSettings(string sSettings)
@@ -356,7 +356,7 @@ SafeWord()
 {
     if (g_iSafeMode)
     {
-        llMessageLinked(LINK_SET, COMMAND_RELAY_SAFEWORD, "","");
+        llMessageLinked(LINK_SET, COMMAND_RELAY_SAFEWORD, "",NULL_KEY);
         Notify(g_kWearer, "You have safeworded",TRUE);
         g_lTempBlackList=[];
         g_lTempWhiteList=[];
@@ -752,7 +752,7 @@ default
     {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
         }
         else if (iNum==CMD_ADDSRC)
         {
