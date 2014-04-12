@@ -1,18 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - label                                //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-// SatomiAhn Initial support for llTextBox. 
-
-string g_sParentMenu = "AddOns";
+string g_sParentMenu = "Apps";
 string g_sSubMenu = "Label";
 string g_sFontParent = "Appearance";
 string g_sFontMenu = "Font";
@@ -130,8 +130,8 @@ key     null_key        = NULL_KEY;
 //key g_kFontTexture = "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe";//verily serif 40 etched, on white
 key g_kFontTexture = NULL_KEY;
 list g_lFonts = [
-//    "Andale 1", "ccc5a5c9-6324-d8f8-e727-ced142c873da", //
-//    "Andale 2", "8e10462f-f7e9-0387-d60b-622fa60aefbc", //not ideally aligned
+    "Andale 1", "ccc5a5c9-6324-d8f8-e727-ced142c873da", //
+    "Andale 2", "8e10462f-f7e9-0387-d60b-622fa60aefbc", //not ideally aligned
     "Serif 1", "2c1e3fa3-9bdb-2537-e50d-2deb6f2fa22c",
     "Serif 2", "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe",
     "LCD", "014291dc-7fd5-4587-413a-0d690a991ae1"
@@ -160,7 +160,7 @@ key Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integ
 FontMenu(key kID, integer iAuth)
 {
     list lButtons=llList2ListStrided(g_lFonts,0,-1,2);
-    string sPrompt = "\n\nSelect the font for the " + CTYPE + "'s label.\n\nNote: This feature requires a design with label prims. If the worn design doesn't have any of those, it is recommended to uninstall LooksLabel with the updater.";
+    string sPrompt = "\nSelect the font for the " + CTYPE + "'s label.\n\nNOTE: This feature requires a design with label prims. If the worn design doesn't have any of those, it is recommended to uninstall Label with the updater.\n\nwww.opencollar.at/label";
 
     g_kDialogID=Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
@@ -312,7 +312,7 @@ SetOffsets(key font)
             integer t = (integer)llList2String(params, 1);
             if (t == PRIM_TYPE_BOX)
             {
-                if (font == NULL_KEY) font = "014291dc-7fd5-4587-413a-0d690a991ae1"; // LCD default for box
+                if (font == NULL_KEY) font = "bf2b6c21-e3d7-877b-15dc-ad666b6c14fe"; // LCD default for box
                 g_vGridOffset = <-0.45, 0.425, 0.0>;
                 g_vRepeats = <0.126, 0.097, 0>;
                 g_vOffset = <0.036, 0.028, 0>;
@@ -351,7 +351,7 @@ integer UserCommand(integer iNum, string sStr, key kID)
         if (sStr == "menu " + g_sSubMenu)
         {
             g_kTBoxID = Dialog(kID, "\n- Submit the new label in the field below.\n- Submit a few spaces to clear the label.\n- Submit a blank field to go back to "
- + g_sParentMenu + ".", [], [], 0, iNum);
+ + g_sParentMenu + ".\n\nwww.opencollar.at/label", [], [], 0, iNum);
         }
         else if (sStr == "menu " + g_sFontMenu)
         {

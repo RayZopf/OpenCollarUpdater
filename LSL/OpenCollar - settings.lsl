@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - settings                              //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,11 +30,6 @@
 //  EX: oc_texture=Base~steel~Ring~stripes (notecard line)
 //      texture_Base=steel,texture_Ring=stripes (in the scripts)
 
-//3.936 Fixed up multiline and multi-item cache dump to text to properly use new line characters at the start of each line so that the output list is properly NOT concatenated into a single line per script despite continuation characters.
-//3.934 Added a load defaults button to menu to user to reload the settings from the defaults notecard without having to open the notecard, edit it, and save it again, as script is only being reset on a changed owner. This allows people to restore settings more easily, for example if they change appearance or if they runaway and want to restore the owner settings from the defaults card. -MD
-//3.934 Menu Changes: the help/debug > settings setup removed, now help goes into the help/about menu and these functions appear in the Options menu under main. For the sake of simplicity, Fix Menus is now handled here, by using llResetOtherScript(); -MD
-
-
 string PARENT_MENU = "Main";
 string SUBMENU = "Options"; 
 
@@ -41,14 +38,14 @@ string PREFUSER = "☐ Personal";
 string PREFDESI = "☒ Personal"; // yes, I hate cutoff buttons
 //string WIKI = "Online Guide";
 string SETTINGSHELP="Settings Help";
-string SETTINGSHELP_URL="http://www.opencollar.at/settings-guide.html";
+string SETTINGSHELP_URL="http://www.opencollar.at/options.html";
 string LOADCARD="Load Defaults";
 string REFRESH_MENU = "Fix Menus";
 string UPMENU = "BACK";
 key g_kMenuID;
 key g_kWearer;
 string g_sScript;
-string g_sMenuScript="OpenCollar - menu"; //for fixmenus
+string g_sMenuScript="OpenCollar - main"; //for fixmenus
 
 string defaultscard = "defaultsettings";
 string split_line; // to parse lines that were split due to lsl constraints
@@ -124,22 +121,20 @@ key Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integ
 }
 DoMenu(key keyID, integer iAuth)
 {
-    string sPrompt = "\nClick '" + DUMPCACHE + "' to dump all current settings to chat.";
-    sPrompt += "\n(copy/paste them to backup your defaultsettings)";
-    //sPrompt += "\nClick '" + WIKI + "' to get a link to the User Guide.";
-    sPrompt += "\nClick '" +LOADCARD+"' to restore values from defaultsettings notecard.";
+    string sPrompt = "\n" + DUMPCACHE + " prints current settings to chat.";
+    sPrompt += "\n" +LOADCARD+" restores the default settings.";
     list lButtons = [DUMPCACHE,LOADCARD,REFRESH_MENU,SETTINGSHELP];
     if (USER_PREF)
     {
-        sPrompt += "\nUncheck " + PREFDESI + " to give designer settings priority.\n";
+        sPrompt += "\n\nUncheck " + PREFDESI + " to give designer settings priority.\n";
         lButtons += [PREFDESI];
     }
     else
     {
-        sPrompt += "\nCheck " + PREFUSER + " to give your personal settings priority.\n";
+        sPrompt += "\n\nCheck " + PREFUSER + " to give your personal settings priority.\n";
         lButtons += [PREFUSER];
     }
-    sPrompt +="\nNote: No worries, Settings backups are entirely optional.";
+    sPrompt +="\nwww.opencollar.at/options";
     g_kMenuID = Dialog(keyID, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
@@ -414,14 +409,14 @@ SendValues()
     }
     llMessageLinked(LINK_SET, LM_SETTING_RESPONSE, "settings=sent", "");//tells scripts everything has be sentout
 }
-
+/*
 Refresh()
 {
     //llMessageLinked(LINK_THIS, MENUNAME_REQUEST, SUBMENU, "");
     llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + SUBMENU, "");
     SendValues();
 }
-
+*/
 integer UserCommand(integer iNum, string sStr, key kID)
 {
     if (iNum != COMMAND_OWNER && iNum != COMMAND_WEARER) return FALSE;
@@ -501,7 +496,7 @@ default
         if (g_kWearer == llGetOwner())
         {
             llSleep(0.5); // brief wait for others to reset
-            Refresh();        
+            SendValues();    
         }
         else llResetScript();
     }
@@ -566,7 +561,7 @@ default
                 // wait a sec before sending settings, in case other scripts are
                 // still resetting.
                 llSleep(2.0);
-                Refresh();
+                SendValues();
             }
         }
     }
@@ -673,10 +668,10 @@ default
                 DoMenu(kAv, iAuth);
             }
         }
-        else if (iNum == MENUNAME_REQUEST && sStr == PARENT_MENU)
-        {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + SUBMENU, "");
-        }
+        //else if (iNum == MENUNAME_REQUEST && sStr == PARENT_MENU)
+        //{
+        //    llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + SUBMENU, "");
+        //}
         else if (iNum == DIALOG_TIMEOUT)
         {
             // timeout from menu system, you do not have to react on this, but you can

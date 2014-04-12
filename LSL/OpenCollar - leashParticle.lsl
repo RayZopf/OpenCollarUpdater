@@ -1,20 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                           OpenCollar - leashParticle                           //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-// ADDED "LIFE" MENU FUNCTION TO LEASH MENU FOR ST ("Slave Trash" version) by Jean Severine 2014-01-25
-
 //Split from the leash script in April 2010 by Garvin Twine
-
-//3.934 replace g_sParticleTextureID with texture name if NULL_KEY. This is for non full perms textures, which return a null key, giving a blank particle. This should still work for linked leash points if the texture is added to the leash point as well. 
+//Nandana Singh, Lulu Pink, Joy Stipe, Wendy Starfall
+//Medea Destiny, Jean Severine, littlemousy, Romka Swallowtail
 
 // - MESSAGE MAP
 //integer COMMAND_NOAUTH      = 0;
@@ -53,16 +53,21 @@ integer COMMAND_LEASH_SENSOR = 20001;
 string UPMENU       = "BACK";
 //string MORE         = ">";
 string PARENTMENU   = "Leash";
-string SUBMENU      = "Advanced";
+string SUBMENU      = "Customize";
 string L_TEXTURE    = "Texture";
 string L_DENSITY    = "Density";
 string L_COLOR      = "Color";
 string L_GRAVITY    = "Gravity";
 string L_SIZE       = "Size";
 string L_LIFE       = "Life";   // ADDED FOR ST
+string L_GLOW       = "Glow";
 string L_DEFAULTS   = "ResetDefaults";
 
-list g_lSettings; //["tex", "texName", "size", "0.07", "color", "1,1,1", "gravity", "1.0", "density", "0.04", "Glow", "1"]
+// Defalut leash particle, can read from defaultsettings:
+// User_leashDefaults=Texture~chain~Size~<0.07,0.07,1.0>~Color~<1,1,1>~Density~-0.04~Gravity~-1.1~Life~3.0~Glow~1
+list g_lDefaultSettings = [L_TEXTURE,"chain", L_SIZE,"<0.07,0.07,1.0>", L_COLOR,"<1,1,1>", L_DENSITY,"-0.04", L_GRAVITY,"-1.0", L_LIFE, "3.0", L_GLOW, "0"]; 
+
+list g_lSettings;
 
 string g_sCurrentMenu = "";
 key g_kDialogID;
@@ -184,7 +189,7 @@ vector g_vLeashGravity = <0.0,0.0,-1.0>;
 integer g_iParticleCount = 1;
 float g_fBurstRate = 0.04;
 //same g_lSettings but to store locally the default settings recieved from the defaultsettings note card, using direct string here to save some bits
-list g_lDefaultSettings;
+
 
 Particles(integer iLink, key kParticleTarget)
 {
@@ -234,7 +239,6 @@ StartParticles(key kParticleTarget)
             Particles((integer)llList2String(g_lLeashPrims, g_iLoop + 1), kParticleTarget);
         }
     }
-    llSetTimerEvent(3.0);
     g_bLeashActive = TRUE;
 }
 
@@ -298,39 +302,68 @@ string Float2String(float in)
     return out;
 }
 
-SaveSettings(string sToken, string sSave, integer bSaveToLocal)
+SaveSettings(string sToken, string sValue, integer bSaveToLocal)
 {
     integer iIndex = llListFindList(g_lSettings, [sToken]);
-    if (iIndex>=0)
+    if (iIndex>=0) 
     {
-        g_lSettings = llListReplaceList(g_lSettings, [sSave], iIndex +1, iIndex +1);
-
+        g_lSettings = llListReplaceList(g_lSettings, [sValue], iIndex +1, iIndex +1);
     }
     else
     {
-        g_lSettings = g_lSettings + [sToken, sSave];
-    }
+        g_lSettings += [sToken, sValue];
+    }    
     if (bSaveToLocal)
     {
-        llMessageLinked(LINK_THIS, LM_SETTING_SAVE, g_sScript + sToken + "=" + sSave, NULLKEY);
+        llMessageLinked(LINK_THIS, LM_SETTING_SAVE, g_sScript + sToken + "=" + sValue, "");
     }
 }
 
-SaveDefaultSettings(string sSetting, string sValue)
+SaveDefaultSettings(string sToken, string sValue)
 {
-    integer index = llListFindList(g_lDefaultSettings, [sSetting]) +1;
-    g_lDefaultSettings = llListReplaceList(g_lDefaultSettings, [sValue], index, index);
+    integer index = llListFindList(g_lDefaultSettings, [sToken]);
+    if (index>=0)
+    {
+        g_lDefaultSettings = llListReplaceList(g_lDefaultSettings, [sValue], index+1, index+1);
+    }
+    else
+    {
+        g_lDefaultSettings += [sToken, sValue];
+    }
 }
 
-string GetDefaultSetting(string sSetting)
+string GetDefaultSetting(string sToken)
 {
-    integer index = llListFindList(g_lDefaultSettings, [sSetting]);
+    integer index = llListFindList(g_lDefaultSettings, [sToken]);
     return llList2String(g_lDefaultSettings, index + 1);
+}
+
+string GetSetting(string sToken)
+{
+    integer index = llListFindList(g_lSettings, [sToken]);
+    if (index != -1) return llList2String(g_lSettings, index + 1);
+    else return GetDefaultSetting(sToken); // return from defaultsettings if not present
+}
+
+// get settings before StartParticles
+GetSettings()
+{
+    g_fBurstRate = (float)GetSetting(L_DENSITY);
+    g_vLeashGravity.z = (float)GetSetting(L_GRAVITY);
+    g_vLeashSize = (vector)GetSetting(L_SIZE);
+    g_fParticleAge = (float)GetSetting(L_LIFE);  // ADDED FOR ST
+    g_vLeashColor = (vector)GetSetting(L_COLOR);
+    //g_bParticleGlow = (integer)GetSetting(L_GLOW);
+    string glow = llToLower(GetSetting(L_GLOW));
+    if (glow == "off" || glow == "0") g_bParticleGlow = 0 ;
+    if (glow == "on" || glow == "1") g_bParticleGlow = 1 ;
+    SetTexture(GetSetting(L_TEXTURE), NULLKEY);
 }
 
 // Added bSave as a boolean, to make this a more versatile wrapper
 SetTexture(string sIn, key kIn)
 {
+    g_sParticleTexture = sIn;
     if (sIn=="chain"){
         g_sParticleTextureID="4cde01ac-4279-2742-71e1-47ff81cc3529";
     } else if (sIn=="rope"){
@@ -338,7 +371,6 @@ SetTexture(string sIn, key kIn)
     } else if (sIn=="totallytransparent"){
         g_sParticleTextureID="bd7d7770-39c2-d4c8-e371-0342ecf20921";
     } else {
-        g_sParticleTexture = sIn;
         if (llToLower(g_sParticleTexture) == "noleash")
         {
             g_bInvisibleLeash = TRUE;
@@ -398,58 +430,64 @@ OptionsMenu(key kIn, integer iAuth)
         lButtons += "GlowOn";
     }
     lButtons += [L_DEFAULTS];
-    string sPrompt = "\n\nAdvanced Leash Options\n";
+    string sPrompt = "\nCustomize the looks and feel of your leash.";
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
 DensityMenu(key kIn, integer iAuth)
 {
-    list lButtons = ["Default", "+", "-"];
+    list lButtons = ["+", "-", "Default"];
     g_sCurrentMenu = L_DENSITY;
-    string sPrompt = "\n\nChoose '+' for more and '-' for less particles\n'Default' to revert to the default\n\nCurrent Density = ";
-    sPrompt += Float2String(-g_fBurstRate) + "\nDefault: -0.04" ;// BurstRate is opposite the implied effect of density
+    string Default = GetDefaultSetting(L_DENSITY);
+    string sPrompt = "\nChoose '+' for more and '-' for less particles\n'Default' to revert to the default: "+Default;
+    sPrompt += "\n\nCurrent Density = "+Float2String(g_fBurstRate) ;// BurstRate is opposite the implied effect of density
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
 GravityMenu(key kIn, integer iAuth)
 {
-    list lButtons = ["Default", "+", "-", "noGravity"];
+    list lButtons = ["+", "-", "Default", "noGravity"];
     g_sCurrentMenu = L_GRAVITY;
-    string sPrompt = "\n\nChoose '+' for more and '-' for less leash-gravity\n'Default' to revert to the default\n\nCurrent Gravity = ";
-    sPrompt += Float2String(g_vLeashGravity.z) + "\nDefault: -1.0";
+    string Default = GetDefaultSetting(L_GRAVITY);
+    string sPrompt = "\nChoose '+' for more and '-' for less leash-gravity\n'Default' to revert to the default: "+Default; 
+    sPrompt += "\n\nCurrent Gravity = "+Float2String(g_vLeashGravity.z) ;
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
 SizeMenu(key kIn, integer iAuth)
 {
-    list lButtons = ["Default", "+", "-", "MIN"];   // ADDED FOR ST changed "minimum" to "MIN"
+    list lButtons = ["X+", "Y+", "Default", "X-", "Y-", "MIN"];   // ADDED FOR ST changed "minimum" to "MIN"
     g_sCurrentMenu = L_SIZE;
-    string sPrompt = "\n\nChoose '+' for bigger and '-' for smaller size of the leash texture\n'Default' to revert to the default\n'minium' for the smallest possible\n\nCurrent Size = ";
-    sPrompt += Float2String(g_vLeashSize.x) + "\nDefault: 0.07 (0.03 steps)";
+    vector defaultsize = (vector)GetDefaultSetting(L_SIZE);    
+    string sPrompt = "\nChoose '+' for bigger and '-' for smaller size of the leash texture";
+    sPrompt += "\n'Default' to revert to the default size: "+Float2String(defaultsize.x)+" x "+Float2String(defaultsize.y);
+    sPrompt += "\n'MIN' for the smallest possible: 0.04 x 0.04\n" ; 
+    sPrompt += "\nCurrent Size = "+ Float2String(g_vLeashSize.x)+" x "+Float2String(g_vLeashSize.y) + "  (0.03 steps)";
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
 LifeMenu(key kIn, integer iAuth)   // ADDED FOR ST
 {
-    list lButtons = ["+0.5", "-0.5", "Default", "+0.1", "-0.1", "MIN"];
+    list lButtons = ["+0.1", "+0.5", "Default", "-0.1", "-0.5", "MIN"];
     g_sCurrentMenu = L_LIFE;
-    string sPrompt = "Choose '+' for longer or '-' for shorter life\n'MIN' for the shortest life\nCurrent Life = ";
-    string sCurrentLife = llGetSubString((string)g_fParticleAge,0,2);
-    sPrompt += sCurrentLife + "\nDefault: 3.0\n";
+    string sPrompt = "\nChoose '+' for longer or '-' for shorter life,";
+    sPrompt += "\n'Default' to revert to the default life: "+GetDefaultSetting(L_LIFE); 
+    sPrompt += "\n'MIN' for the shortest life: 0.1\n";
+    sPrompt += "\nCurrent Life = "+llGetSubString((string)g_fParticleAge,0,2);
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
 ColorCategoryMenu(key kIn, integer iAuth)
 {
     //give kAv a dialog with a list of color cards
-    string sPrompt = "\n\nChoose a color category.\n";
+    string sPrompt = "\nChoose a color category.";
     g_sCurrentMenu = "L-ColorCat";
     g_kDialogID = Dialog(kIn, sPrompt, g_lCategories, [UPMENU], 0, iAuth);
 }
 
 ColorMenu(key kIn, integer iAuth)
 {
-    string sPrompt = "\n\nChoose a color.\n";
+    string sPrompt = "\nChoose a color.";
     list lButtons = llList2ListStrided(g_lColors,0,-1,2);
     g_sCurrentMenu = L_COLOR;
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
@@ -483,8 +521,8 @@ TextureMenu(key kIn, integer iAuth)
     }
     lButtons += ["noTexture", "noLeash"];
     g_sCurrentMenu = L_TEXTURE;
-    string sPrompt = "\n\nChoose a texture\nnoTexture does default SL particle dots\nnoLeash means no particle leash at all\n\nCurrent Texture = ";
-    sPrompt += g_sParticleTexture + "\n";
+    string sPrompt = "\nChoose a texture\nnoTexture does default SL particle dots\nnoLeash means no particle leash at all\n\nCurrent Texture = ";
+    sPrompt += g_sParticleTexture;
     g_kDialogID = Dialog(kIn, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
@@ -494,34 +532,26 @@ LMSay()
     llShout(LOCKMEISTER, (string)llGetOwnerKey(g_kLeashedTo) +  "handle");
 }
 
-integer isInSimOrJustOutside(vector v)
-{
-    if(v == ZERO_VECTOR || v.x < -25 || v.x > 280 || v.y < -25 || v.y > 280)
-        return FALSE;
-    return TRUE;
-}
-
 default
 {
     state_entry()
     {
-        g_sScript = llStringTrim(llList2String(llParseString2List(llGetScriptName(), ["-"], []), 1), STRING_TRIM) + "_";
-        g_lDefaultSettings = [L_TEXTURE, "chain", L_SIZE, "<0.22, 0.17, 0.0>", L_COLOR, "<1,1,1>", L_DENSITY, "-0.04", L_GRAVITY, "<0.0,0.0,-1.0>", "Glow", "1", L_LIFE, "3.0"]; // CHANGED DEFAULT SIZE FOR ST TO <0.22, 0.17, 0.0>
-        StopParticles(TRUE);
+        g_sScript = "leashParticle_";
+        g_kWearer = llGetOwner();
         FindLinkedPrims();
-        SetTexture(g_sParticleTexture, NULLKEY);
+        StopParticles(TRUE);
+        //SetTexture(g_sParticleTexture, NULLKEY);
         //llSleep(1.0);
         //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENTMENU + "|" + SUBMENU, "");
-        g_kWearer = llGetOwner();
-        //llOwnerSay((string)llGetFreeMemory());
-        SetTexture("chain", NULLKEY);
-        if (g_kLeashedTo != NULLKEY)
-        {
-            debug ("entry leash targeted");
-            StartParticles(g_kParticleTarget);
-        }
-        
+                
+        //SetTexture("chain", NULLKEY);
+        //if (g_kLeashedTo != NULLKEY)
+       // {
+       //     debug ("entry leash targeted");
+         //   StartParticles(g_kParticleTarget);
+        //}        
         llListen(COMMAND_PARTICLE,"","","");    // ADDED FOR BETA 0.1
+        //llOwnerSay((string)llGetFreeMemory());
     }
     on_rez(integer iRez)
     {
@@ -535,8 +565,6 @@ default
             g_kLeashedTo = kMessageID;
             if (sMessage == "unleash")
             {
-                llSetTimerEvent(0);
-                g_bLeasherInRange = FALSE;
                 StopParticles(TRUE);
                 llListenRemove(g_iLMListener);
                 llListenRemove(g_iLMListernerDetach);
@@ -544,15 +572,9 @@ default
             else
             {
                 debug("leash active");
-                if (g_bInvisibleLeash)
-                {// only start the sensor for the leasher
-                    g_bLeasherInRange = TRUE;
-                    llSetTimerEvent(3.0);
-                }
-                else
+                if (! g_bInvisibleLeash)
                 {
                     integer bLeasherIsAv = (integer)llList2String(llParseString2List(sMessage, ["|"], [""]), 1);
-                    g_bLeasherInRange = TRUE;
                     g_kParticleTarget = g_kLeashedTo;
                     StartParticles(g_kParticleTarget);
                     if (bLeasherIsAv)
@@ -617,23 +639,17 @@ default
                         OptionsMenu(kAv, iAuth);
                     }
                 }
-                else if (g_sCurrentMenu == "Advanced")
+                else if (g_sCurrentMenu == "Customize")
                 {
                     if (sButton == L_DEFAULTS)
                     {
-                        SetTexture(GetDefaultSetting(L_TEXTURE), NULLKEY);
-                        g_fBurstRate = (float)GetDefaultSetting(L_DENSITY);
-                        g_vLeashGravity = (vector)GetDefaultSetting(L_GRAVITY);
-                        g_vLeashSize = (vector)GetDefaultSetting(L_SIZE);
-                        g_fParticleAge = (float)GetDefaultSetting(L_LIFE);  // ADDED FOR ST
-                        g_vLeashColor = (vector)GetDefaultSetting(L_COLOR);
-                        g_bParticleGlow = (integer)GetDefaultSetting("Glow");
-                        g_lSettings = g_lDefaultSettings;
+                        g_lSettings = []; // clear current settings
                         Notify(kAv, "Leash-settings restored to " + CTYPE + " defaults.", FALSE);
                         // Cleo: as we use standard, no reason to keep the local settings
                         llMessageLinked(LINK_SET, LM_SETTING_DELETE, g_sScript + "all", "");
                         if (!g_bInvisibleLeash && g_bLeashActive)
                         {
+                            GetSettings(); // get settings before 
                             StartParticles(g_kParticleTarget);
                         }
                         OptionsMenu(kAv, iAuth);
@@ -662,10 +678,10 @@ default
                     {
                         LifeMenu(kAv, iAuth);
                     }
-                    else if (llGetSubString(sButton, 0, 3) == "Glow")
+                    else if (llGetSubString(sButton, 0, 3) == L_GLOW)
                     {
                         g_bParticleGlow = !g_bParticleGlow;
-                        SaveSettings("Glow", (string)g_bParticleGlow, TRUE);
+                        SaveSettings(L_GLOW, (string)g_bParticleGlow, TRUE);
                         if (!g_bInvisibleLeash && g_bLeashActive)
                         {
                             StartParticles(g_kParticleTarget);
@@ -754,19 +770,25 @@ default
                 {
                     if (sButton == "Default")
                     {
-                        g_vLeashGravity = (vector)GetDefaultSetting(L_GRAVITY);
+                        g_vLeashGravity.z = (float)GetDefaultSetting(L_GRAVITY);
                     }
                     else if (sButton == "+")
                     {
-                        if (g_vLeashGravity == <0.0,0.0,-3.0>)
+                        g_vLeashGravity.z -= 0.1;
+                        if (g_vLeashGravity.z < -3.0)
+                        {
+                            g_vLeashGravity.z = -3.0;
                             Notify(kAv, "You have already reached maximum gravity.", FALSE);
-                        else g_vLeashGravity.z -= 0.1;
+                        } 
                     }
                     else if (sButton == "-")
                     {
-                        if (g_vLeashGravity == <0.0,0.0,0.0>)
+                        g_vLeashGravity.z += 0.1;
+                        if (g_vLeashGravity.z > 0.0)
+                        {
+                            g_vLeashGravity.z = 0.0 ;
                             Notify(kAv, "You have already reached 0 leash-gravity.", FALSE);
-                        else g_vLeashGravity.z += 0.1;
+                        }
                     }
                     else if (sButton == "noGravity")
                     {
@@ -781,25 +803,34 @@ default
                 }
                 else if (g_sCurrentMenu == L_SIZE)
                 {
-                    if (sButton == "Default")
+                    if (sButton == "Default") 
                     {
                         g_vLeashSize = (vector)GetDefaultSetting(L_SIZE);
-                    }
-                    else if (sButton == "+")
+                     }        
+                    else if (sButton == "X+")
                     {
                         g_vLeashSize.x +=0.03;
+                    }
+                    else if (sButton == "Y+")
+                    {
                         g_vLeashSize.y +=0.03;
                     }
-                    else if (sButton == "-")
+                    else if (sButton == "X-")
                     {
-                        if (g_vLeashSize == <0.04,0.04,0.0>)
+                        g_vLeashSize.x -=0.03;                        
+                        if (g_vLeashSize.x < 0.04)
                         {
+                            g_vLeashSize.x = 0.04 ;
                             Notify(kAv, "You have reached the minimum size for particles.", FALSE);
                         }
-                        else
+                    }
+                    else if (sButton == "Y-")
+                    {
+                        g_vLeashSize.y -=0.03;
+                        if (g_vLeashSize.y < 0.04)
                         {
-                            g_vLeashSize.x -=0.03;
-                            g_vLeashSize.y -=0.03;
+                            g_vLeashSize.y = 0.04 ;
+                            Notify(kAv, "You have reached the minimum size for particles.", FALSE);
                         }
                     }
                     else if (sButton == "MIN")  // ADDED FOR ST changed "minimum" to "MIN"
@@ -810,7 +841,7 @@ default
                     {
                         StartParticles(g_kParticleTarget);
                     }
-                    SaveSettings(L_SIZE, Float2String(g_vLeashSize.x), TRUE);
+                    SaveSettings(L_SIZE, Vec2String(g_vLeashSize), TRUE);
                     SizeMenu(kAv, iAuth);
                 }
                 else if (g_sCurrentMenu == L_LIFE)  // ADDED FOR ST
@@ -825,13 +856,19 @@ default
                     }
                     else if (sButton == "-0.5")
                     {
-                        if (g_fParticleAge == 0.5)
-                        {
-                            Notify(kAv, "Use the -0.1 button to reach minimum particle life.", FALSE);
-                        }
-                        else
-                        {
+                        //if (g_fParticleAge <= 0.5)
+                        //{
+                        //    Notify(kAv, "Use the -0.1 button to reach minimum particle life.", FALSE);
+                        //}
+                        //else
+                        //{
                             g_fParticleAge -= 0.5;
+                        //}
+                        
+                        if (g_fParticleAge < 0.1)
+                        {
+                            g_fParticleAge = 0.1;
+                            Notify(kAv, "You have reached minimum particle life.", FALSE);
                         }
                     }
                     else if (sButton == "+0.1")
@@ -840,13 +877,11 @@ default
                     }
                     else if (sButton == "-0.1")
                     {
-                        if (g_fParticleAge == 0.1)
+                        g_fParticleAge -= 0.1;
+                        if (g_fParticleAge < 0.1)
                         {
+                            g_fParticleAge = 0.1;
                             Notify(kAv, "You have reached minimum particle life.", FALSE);
-                        }
-                        else
-                        {
-                            g_fParticleAge -= 0.1;
                         }
                     }
                     else if (sButton == "MIN")
@@ -857,7 +892,7 @@ default
                     {
                         StartParticles(g_kParticleTarget);
                     }
-                    SaveSettings(L_LIFE, (string)g_fParticleAge, TRUE);
+                    SaveSettings(L_LIFE, Float2String(g_fParticleAge), TRUE);
                     LifeMenu(kAv,iAuth);
                 }
             }
@@ -875,51 +910,17 @@ default
             }
             else if (llGetSubString(sToken, 0, i) == g_sScript)
             {
-                sToken = llGetSubString(sToken, i + 1, -1);
-                if (sToken == "Texture")
-                {
-                    SetTexture(sValue, NULLKEY);
-                    SaveSettings(L_TEXTURE, sValue, FALSE);
-                }
-                else if (sToken == "Density")
-                {
-                    g_fBurstRate = (float)sValue;
-                    SaveSettings(L_DENSITY, sValue, FALSE);
-                }
-                else if (sToken == "Gravity")
-                {
-                    g_vLeashGravity.z = (float)sValue;
-                    sValue = Vec2String(g_vLeashGravity);
-                    SaveSettings(L_GRAVITY, sValue, FALSE);
-                }
-                else if (sToken == "Size")
-                {
-                    g_vLeashSize.x = g_vLeashSize.y = (float)sValue;
-                    SaveSettings(L_SIZE, sValue, FALSE);
-                    sValue = Vec2String(g_vLeashSize);
-                }
-                else if (sToken == "Life")
-                {
-                    g_fParticleAge = (float)sValue;
-                    SaveSettings(L_LIFE, sValue, FALSE);                    
-                }
-                else if (sToken == "Color")
-                {
-                    g_vLeashColor = (vector)sValue;
-                    SaveSettings(L_COLOR, sValue, FALSE);
-                }
-                else if (sToken == "Glow")
-                {
-                    if (llToLower(sValue) == "off") g_bParticleGlow = FALSE;
-                    else g_bParticleGlow = TRUE;
-                }
-                //SaveDefaultSettings(sToken, sValue); // no change particle defaultsetting!
+                // load current settings
+                sToken = llGetSubString(sToken, i + 1, -1);                
+                SaveSettings(sToken, sValue, FALSE);
+                SaveDefaultSettings(sToken, sValue);
             }
             else if (sToken == "Global_CType") CTYPE = sValue;
             // in case wearer is currently leashed
-            else if (sMessage == "settings=sent" && g_kLeashedTo != NULLKEY)
+            else if (sMessage == "settings=sent")             
             {
-                StartParticles(g_kParticleTarget);
+                GetSettings(); // get settings before
+                if (g_kLeashedTo != NULLKEY) StartParticles(g_kParticleTarget);
             }
         }
         else if (iNum == LM_SETTING_DELETE)
@@ -976,55 +977,7 @@ default
                     g_bParticleGlow = currentglow;
                     SetTexture(sMessage, g_kWearer);
                     StartParticles(g_kParticleTarget);
-                }                             
-            }
-        }
-    }
-
-    timer()
-    {
-        if (isInSimOrJustOutside(llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0)) && llVecDist(llGetPos(), llList2Vector(llGetObjectDetails(g_kLeashedTo,[OBJECT_POS]),0))<60)
-        {
-            if(!g_bLeasherInRange)
-            {
-//                llMessageLinked(LINK_THIS, COMMAND_LEASH_SENSOR, "Leasher in range", NULLKEY);
-//                LMSay();
-                if (g_iAwayCounter)
-                {
-                    g_iAwayCounter = 0;
-                    llSetTimerEvent(3.0);
-                }
-                StartParticles(g_kParticleTarget);
-                g_bLeasherInRange = TRUE;
-                //hate this sleep but somehow sometimes this message seems to get lost...
-//                llSleep(1.5);
-                llMessageLinked(LINK_THIS, COMMAND_LEASH_SENSOR, "Leasher in range", NULLKEY);
-                LMSay();
-            }
-            //actually not needed when using the new leash holder but to be sure not to dangle the leash but releash to avi
-            if(llKey2Name(g_kParticleTarget) == "")
-            {
-                g_kParticleTarget = g_kLeashedTo;
-                StartParticles(g_kParticleTarget);
-                LMSay();
-            }
-        }
-        else
-        {
-            if(g_bLeasherInRange)
-            {
-                StopParticles(FALSE);
-                llMessageLinked(LINK_THIS, COMMAND_LEASH_SENSOR, "Leasher out of range", NULLKEY);
-                if (g_iAwayCounter > 3)
-                {
-                    g_bLeasherInRange = FALSE;
-                }
-            }
-            g_iAwayCounter++; //+1 every 3 secs
-            if (g_iAwayCounter > 200) //10 mins
-            {//slow down the sensor:
-                g_iAwayCounter = 1;
-                llSetTimerEvent(11.0);
+                }      
             }
         }
     }

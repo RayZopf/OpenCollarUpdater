@@ -1,19 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - badwords                              //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-// SatomiAhn Initial support for llTextBox. 
-
 string g_sSubMenu = "Badwords";
-string g_sParentMenu = "AddOns";
+string g_sParentMenu = "Apps";
 
 //MESSAGE MAP
 integer COMMAND_NOAUTH = 0;
@@ -109,20 +109,21 @@ DialogBadwords(key kID, integer iAuth)
     if(Enabled())
     {
         lButtons += ["OFF"];
-        sText += "Badwords are turned ON.\n";
+        sText += "\nBadwords are turned ON.";
     }
     else
     {
         lButtons += ["ON"];
-        sText += "Badwords are turned OFF.\n";
+        sText += "\nBadwords are turned OFF.";
     }
-    sText += "'Set Penance' write the penance the sub has to say to get released from the animation.\n";
+        sText+="\n\nwww.opencollar.at/badwords";
+    /*sText += "'Set Penance' write the penance the sub has to say to get released from the animation.\n";
     sText += "'Add Word' add another badword.\n";
     sText += "'Remove Word' shows the list of badwords and allows removing them.\n";
     sText += "'Set Animation' select the animation to use as a punishment.\n";
-    sText += "'Set Sound' select the sound tto use as a punishment.\n";
+    sText += "'Set Sound' select the sound tto use as a punishment.\n";*/
     
-    g_kDialog = g_kMainDialog = Dialog(kID, sText, lButtons, ["Settings", UPMENU],0, iAuth);
+    g_kDialog = g_kMainDialog = Dialog(kID, sText, lButtons, ["Clear All","Settings", UPMENU],0, iAuth);
 }
 
 TboxAddBadword(key kAv, integer iAuth)
@@ -570,6 +571,11 @@ default
                 else if (sMessage == "Settings")
                 { 
                     UserCommand(iAuth, "settings", kAv);
+                    DialogBadwords(kAv, iAuth);
+                }
+                else if (sMessage == "Clear All")
+                {
+                    UserCommand(iAuth, "badwords clearall", kAv);
                     DialogBadwords(kAv, iAuth);
                 }
             }

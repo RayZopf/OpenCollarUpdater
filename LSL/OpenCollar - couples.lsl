@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - couples                               //
-//                                 version 3.958                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -135,10 +137,10 @@ key Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integ
 
 CoupleAnimMenu(key kID, integer iAuth)
 {
-    string sPrompt = "\n\nChoose an animation to play.\nAnmiations will play " ;    
+    string sPrompt = "\nChoose an animation to play.\n\nAnimations will play " ;    
     if(g_fTimeOut == 0) sPrompt += "ENDLESS." ;
     else sPrompt += "for "+(string)llCeil(g_fTimeOut)+" seconds.";    
-    sPrompt += "\nSTOP: release the animation\n";
+    sPrompt += "\n\nwww.opencollar.at/animations\n\n";
     list lButtons = g_lAnimCmds;//we're limiting this to 9 couple anims then
     lButtons += [TIME_COUPLES, STOP_COUPLES];
     g_kAnimmenu=Dialog(kID, sPrompt, lButtons, [UPMENU],0, iAuth);
@@ -270,7 +272,7 @@ default
                     string sTmpName = llDumpList2String(llList2List(lParams, 1, -1), " ");//this makes it so we support even full names in the command
                     //llSensor("", NULL_KEY, AGENT, g_fRange, PI);  //replaced with call to sensor dialog
                     g_kPart=llGenerateKey();
-                    llMessageLinked(LINK_THIS, SENSORDIALOG, (string)g_kCmdGiver + "|\n\nChoose a partner.|0|``"+(string)AGENT+"`"+(string)g_fRange+"`"+(string)PI +"`"+sTmpName+"`1"+ "|BACK|" + (string)iNum, g_kPart);
+                    llMessageLinked(LINK_THIS, SENSORDIALOG, (string)g_kCmdGiver + "|\nChoose a partner:\n|0|``"+(string)AGENT+"`"+(string)g_fRange+"`"+(string)PI +"`"+sTmpName+"`1"+ "|BACK|" + (string)iNum, g_kPart);
                 }
                 else        //no name given.  
                 {
@@ -332,7 +334,7 @@ default
                 }
                 else if (sMessage == TIME_COUPLES)
                 {
-                    string sPrompt = "\n\nChoose the duration for couple animations.\nCurrent duration: ";
+                    string sPrompt = "\nChoose the duration for couple animations.\n\nCurrent duration: ";
                     if(g_fTimeOut == 0) sPrompt += "ENDLESS." ;
                     else sPrompt += "for "+(string)llCeil(g_fTimeOut)+" seconds.";  
                     g_kTimerMenu=Dialog(kAv, sPrompt, ["10", "20", "30","40", "50", "60","90", "120", "ENDLESS"], [UPMENU],0, iAuth);
@@ -347,7 +349,7 @@ default
                         g_iCmdIndex = iIndex;
                         //llSensor("", NULL_KEY, AGENT, g_fRange, PI);
                         g_kPart=llGenerateKey();
-                        llMessageLinked(LINK_THIS, SENSORDIALOG, (string)g_kCmdGiver + "|\n\nChoose a partner.|0|``"+(string)AGENT+"`"+(string)g_fRange+"`"+(string)PI + "|BACK|" + (string)iNum, g_kPart);
+                        llMessageLinked(LINK_THIS, SENSORDIALOG, (string)g_kCmdGiver + "|\nChoose a partner:\n|0|``"+(string)AGENT+"`"+(string)g_fRange+"`"+(string)PI + "|BACK|" + (string)iAuth, g_kPart);
                     }
                 }
             }
@@ -359,15 +361,21 @@ default
                 string sMessage = llList2String(lMenuParams, 1);
                 integer iPage = (integer)llList2String(lMenuParams, 2);
                 integer iAuth = (integer)llList2String(lMenuParams, 3);
-                
-                //process return from sensordialog
-                g_kPartner = (key)sMessage;
-                g_sPartnerName = llKey2Name(g_kPartner);
-                StopAnims();
-                string sCommand = llList2String(g_lAnimCmds, g_iCmdIndex);
-                llRequestPermissions(g_kPartner, PERMISSION_TRIGGER_ANIMATION);
-                Notify(g_kWearer, "Offering to "+ sCommand +" "+ g_sPartnerName, FALSE);
-                Notify(g_kPartner,  llList2String(llParseString2List(llKey2Name(llGetOwner()), [" "], []), 0) + " would like give you a " + sCommand + ". Click [Yes] to accept.", FALSE );
+                if (sMessage == UPMENU)
+                {
+                    CoupleAnimMenu(kAv, iAuth);
+                }
+                else
+                {
+                    //process return from sensordialog
+                    g_kPartner = (key)sMessage;
+                    g_sPartnerName = llKey2Name(g_kPartner);
+                    StopAnims();
+                    string sCommand = llList2String(g_lAnimCmds, g_iCmdIndex);
+                    llRequestPermissions(g_kPartner, PERMISSION_TRIGGER_ANIMATION);
+                    Notify(g_kWearer, "Offering to "+ sCommand +" "+ g_sPartnerName, FALSE);
+                    Notify(g_kPartner,  llList2String(llParseString2List(llKey2Name(llGetOwner()), [" "], []), 0) + " would like give you a " + sCommand + ". Click [Yes] to accept.", FALSE );
+                }   
             }
             else if (kID == g_kTimerMenu)
             {
@@ -449,7 +457,11 @@ default
             llSetObjectName(sName);
             
         }
-        g_iAnimTimeout=llGetUnixTime()+(integer)g_fTimeOut;
+        if (g_fTimeOut > 0.0){
+            g_iAnimTimeout=llGetUnixTime()+(integer)g_fTimeOut;
+        } else {
+            g_iAnimTimeout=0;
+        }
         refreshTimer();
     }
     timer()

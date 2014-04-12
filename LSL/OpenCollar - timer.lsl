@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                               OpenCollar - timer                               //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +56,7 @@ integer g_iInterfaceChannel;
 //Collar Cuff Menu
 
 string g_sSubMenu = "Timer"; // Name of the submenu
-string g_sParentMenu = "AddOns"; // mname of the menu, where the menu plugs in
+string g_sParentMenu = "Apps";
 
 key g_kMenuID;
 key g_kOnMenuID;
@@ -256,7 +258,7 @@ DoMenu(key keyID, integer iAuth)
     }
 
     Debug("timeremaning:"+(string)(g_iOnTimeUpAt-g_iOnTime));
-    string sPrompt = "\n\n- Timer Menu -\n";
+    string sPrompt = "\n";
     list lMyButtons = g_lLocalButtons + lButtons;
 
     //fill in your button list and additional prompt here
@@ -330,7 +332,8 @@ DoMenu(key keyID, integer iAuth)
         sPrompt += "\n\t the RLV restions will NOT be cleared";
         lMyButtons += ["☐ clearRLV"];
     }
-
+        sPrompt+="\n\nwww.opencollar.at/timer";
+        
     llListSort(g_lLocalButtons, 1, TRUE); // resort menu buttons alphabetical
 
     g_kMenuID = Dialog(keyID, sPrompt, lMyButtons, [UPMENU], 0, iAuth);
@@ -818,7 +821,7 @@ default
         }
         else if(iNum == COMMAND_WEARERLOCKEDOUT && sStr == "menu")
         {
-            if (g_iRealRunning || g_iRealRunning)
+            if (g_iOnRunning || g_iRealRunning)
                 Notify(kID , "You are locked out of the " + g_sToyName + " until the timer expires", FALSE);
         }
         else if (iNum == LM_SETTING_DELETE)

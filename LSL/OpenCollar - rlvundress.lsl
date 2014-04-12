@@ -1,20 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                            OpenCollar - rlvundress                             //
-//                                 version 3.958                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-
-// 3.936 New feature! Smartstrip. When smartstrip is activated, the standard clothing removal folder will use detachallthis instead of remoutfit, to remove everything in the same folder or child folders of the item being removed. For people with a sensibly set up #RLV, this makes this a far more useful option! Because lots of people *don't* have a #RLV folder set up for this, we also have a notecard to give to help people with setting up folders. Yay! Smartstrip gets turned on and off via the menus or via the chat commands "smartstrip on" and "smartstrip off". Owners and Wearers can both change this setting. However! We also have a g_kSmartUser key. If someone other an Owner or Wearer selects it, their key gets dumped into this value, which is not saved. This allows other people to activate it for themselves only, for that session only. As an additional bonus, removing clothing can now be accessed by an easy chat command, "strip (item)" or "strip all". For now, I haven't changed the behaviour of strip all, however the code is there commented out if we think it's a good idea for strip all to use smartstrip.
-
-
 //gives menus for clothing and attachment, stripping and locking
+//Satomi Ahn, Medea Destiny
 
 string g_sSubMenu = "Un/Dress";
 string g_sParentMenu = "RLV";
@@ -219,10 +218,10 @@ key Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integ
 MainMenu(key kID, integer iAuth)
 {
     //string sPrompt = "\n\nNote: Keep in mind that mesh clothing is worn as attachments and in most cases together with alpha masks which are worn as clothing layers. It is recommended to explore the possibilities of #RLV Folders for a smooth un/dressing experience.\n";
-    string sPrompt = "\n\nNote: Many clothes, and almost all mesh, mixes layers and attachments. With a properly set up #RLV folder (click "+SMARTHELP+" for info), the SmartStrip option will allow these to be removed automatically. Otherwise, it is recommended to explore the #RLV Folders menu for a smoother un/dressing experience.";
+    string sPrompt = "\nwww.opencollar.at/undress\n\nNOTE: Many clothes, and almost all mesh, mixes layers and attachments. With a properly set up #RLV folder (click "+SMARTHELP+" for info), the SmartStrip option will allow these to be removed automatically. Otherwise, it is recommended to explore the #RLV Folders menu for a smoother un/dressing experience.";
     list lButtons = g_lChildren;
 
-    if (g_iAllLocked)  //are all clothing and attachements locked?
+    if (g_iAllLocked)  //are all clothing and attachments locked?
     {
         sPrompt += "\n all clothes and attachments are currently locked.";
         //skip the LockClothing and the LockAttachment buttons
@@ -236,13 +235,13 @@ MainMenu(key kID, integer iAuth)
     }
     if(g_iSmartStrip==TRUE)
     {
-        sPrompt += "\nSmartStrip is on.";
+        //sPrompt += "\nSmartStrip is on.";
         lButtons += SMARTOFF;
     }
     else
     {
         lButtons += SMARTON;
-        sPrompt += "\nSmartStrip is off.";
+        //sPrompt += "\nSmartStrip is off.";
     }
     lButtons+=SMARTHELP;
     g_kMainID = Dialog(kID, sPrompt, lButtons+g_lSubMenus, [UPMENU], 0, iAuth);
@@ -638,7 +637,7 @@ integer UserCommand(integer iNum, string sStr, key kID) // here iNum: auth value
         {
             DoLockAll(kID); //lock all clothes and attachment points
             SaveLockAllFlag(1);
-            Notify(kID, g_sWearerName+"'s clothing and attachements have been locked.", TRUE);
+            Notify(kID, g_sWearerName+"'s clothing and attachments have been locked.", TRUE);
         }
     }
     else  if (sStr == "unlockall")
@@ -651,7 +650,7 @@ integer UserCommand(integer iNum, string sStr, key kID) // here iNum: auth value
         {
             DoUnlockAll(kID); //unlock all clothes and attachment points
             SaveLockAllFlag(0);
-            Notify(kID, g_sWearerName+"'s clothing and attachements have been unlocked.", TRUE);
+            Notify(kID, g_sWearerName+"'s clothing and attachments have been unlocked.", TRUE);
         }
     }
     else if (llGetSubString(sStr, 0, 15) == "unlockattachment")

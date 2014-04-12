@@ -1,21 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - dialog                               //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-
-// SatomiAhn Initial support for llTextBox. 
-
 //an adaptation of Schmobag Hogfather's SchmoDialog script
 
-//3.951 <512 not <513 for dialog message length. AAAARGH. *bangs head against wall* -MD
 //MESSAGE MAP
 integer COMMAND_NOAUTH = 0;
 integer COMMAND_OWNER = 500;
@@ -230,7 +228,7 @@ Dialog(key kRecipient, string sPrompt, list lMenuItems, list lUtilityButtons, in
                 integer m=llGetListLength(lButtons);
                 integer iLen;
                 integer x;
-                string sOut="Menu key:";
+                string sOut;
                 string sLine;
                 while(x<m)
                 {
@@ -261,7 +259,7 @@ Dialog(key kRecipient, string sPrompt, list lMenuItems, list lUtilityButtons, in
     else //give us the best prompt we can fit into the space!
     {
         string sMkey="";
-        if(iNBPromptlen) sMkey="\nMenu Key:\n";
+        if(iNBPromptlen) sMkey="\n";
         integer iMkeylen=GetStringBytes(sMkey);
         integer iAll=iPromptlen + iNBPromptlen +iMkeylen + GetStringBytes(sThisPrompt);
         if(iAll<512) sThisPrompt = sPrompt + sMkey + sNumberedButtons + sThisPrompt;
@@ -583,11 +581,11 @@ default
                 } else if (i == 1 && llList2Key(AVIS, 0) == kRCPT) {
                     integer iDigits = ButtonDigits(["Yes", "No"]);
                     ClearUser(kRCPT);
-                    Dialog(kRCPT, "\n\nYou are the only one in this region. Add yourself?", ["Yes", "No"], [UPMENU], 0, kID, iDigits, iAuth, "getavi_|"+REQ+"|"+TYPE);
+                    Dialog(kRCPT, "\nYou are the only one in this region. Add yourself?", ["Yes", "No"], [UPMENU], 0, kID, iDigits, iAuth, "getavi_|"+REQ+"|"+TYPE);
                 } else {
                     integer iDigits = ButtonDigits(AVIS);
                     ClearUser(kRCPT);
-                    Dialog(kRCPT, "\n\nChoose the person you like to add.", AVIS, [UPMENU], 0, kID, iDigits, iAuth, "getavi_|"+REQ+"|"+TYPE);
+                    Dialog(kRCPT, "\nChoose the person you like to add:\n", AVIS, [UPMENU], 0, kID, iDigits, iAuth, "getavi_|"+REQ+"|"+TYPE);
                 }
             }
             else {

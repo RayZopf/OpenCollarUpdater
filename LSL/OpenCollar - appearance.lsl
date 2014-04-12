@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                            OpenCollar - appearance                             //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,6 +18,8 @@
 string g_sSubMenu = "Appearance";
 string g_sParentMenu = "Main";
 
+string CTYPE = "collar";
+
 list g_lMenuIDs;//3-strided list of avkey, dialogid, menuname
 integer g_iMenuStride = 3;
 
@@ -23,7 +27,7 @@ string POSMENU = "Position";
 string ROTMENU = "Rotation";
 string SIZEMENU = "Size";
 
-list g_lLocalButtons = ["Position", "Rotation", "Size"]; //[POSMENU, ROTMENU];
+list g_lLocalButtons = [POSMENU, ROTMENU, SIZEMENU]; //["Position", "Rotation", "Size"];
 list g_lButtons;
 float g_fSmallNudge=0.0005;
 float g_fMediumNudge=0.005;
@@ -284,7 +288,7 @@ ScalePrimLoop(integer iScale, integer iRezSize, key kAV)
         }
         g_iScaleFactor = iScale;
         g_iSizedByScript = TRUE;
-        Notify(kAV, "Scaling finished, the collar is now on "+ (string)g_iScaleFactor +"% of the rez size.", TRUE);
+        Notify(kAV, "Scaling finished, the "+CTYPE+" is now on "+ (string)g_iScaleFactor +"% of the rez size.", TRUE);
     }
 }
 
@@ -316,7 +320,7 @@ AdjustRot(vector vDelta)
 
 RotMenu(key kAv, integer iAuth)
 {
-    string sPrompt = "\n\nAdjust the collar rotation.";
+    string sPrompt = "\nAdjust the "+CTYPE+"'s rotation.\n\nNOTE: Arrows refer to the neck joint.";
     list lMyButtons = ["tilt up ↻", "right ↷", "tilt left ↙", "tilt down ↺", "left ↶", "tilt right ↘"];// ria change
     key kMenuID = Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth);
     integer iMenuIndex = llListFindList(g_lMenuIDs, [kAv]);
@@ -333,7 +337,7 @@ RotMenu(key kAv, integer iAuth)
 
 PosMenu(key kAv, integer iAuth)
 {
-    string sPrompt = "\n\nAdjust the collar position:\n\nSet the strength for the nudge ▸/▸▸/▸▸▸.\nNudge the collar in one of the directions.\n\nCurrent nudge strength is: ";
+    string sPrompt = "\nAdjust the "+CTYPE+"'s position.\n\nNOTE: Arrows refer to the neck joint.\n\nCurrent nudge strength is: ";
     list lMyButtons = ["left ←", "up ↑", "forward ↳", "right →", "down ↓", "backward ↲"];// ria iChange
     if (g_fNudge!=g_fSmallNudge) lMyButtons+=["▸"];
     else sPrompt += "▸";
@@ -357,7 +361,7 @@ PosMenu(key kAv, integer iAuth)
 
 SizeMenu(key kAv, integer iAuth)
 {
-    string sPrompt = "\n\nAdjust the collar scale.\n\nIt is based on the size the collar has upon rezzing. You can change back to this size by using '100%'.\n\nCurrent size: " + (string)g_iScaleFactor + "%\n\nWARNING: Make a backup copy of your collar first! Considering the massive variation of designs, this feature is not granted to work in all cases. Possible rendering bugs mean having to right-click your collar first to see the actual result.";
+    string sPrompt = "\nAdjust the "+CTYPE+"'s scale.\n\nIt is based on the size the "+CTYPE+" has upon rezzing. You can change back to this size by using '100%'.\n\nCurrent size: " + (string)g_iScaleFactor + "%\n\nWARNING: Make a backup copy of your "+CTYPE+" first! Considering the massive variation of designs, this feature is not granted to work in all cases. Possible rendering bugs mean having to right-click your "+CTYPE+" first to see the actual result.";
     key kMenuID = Dialog(kAv, sPrompt, SIZEMENU_BUTTONS, [UPMENU], 0, iAuth);
     integer iMenuIndex = llListFindList(g_lMenuIDs, [kAv]);
     list lAddMe = [kAv, kMenuID, SIZEMENU];
@@ -378,15 +382,15 @@ DoMenu(key kAv, integer iAuth)
     string sPrompt;
     if (g_iAppLock)
     {
-        sPrompt = "\n\nThe appearance of the collar has been locked.\nAn owner must unlock it to allow modification.";
+        sPrompt = "\nThe appearance of the "+CTYPE+" has been locked.\n\nAn owner must unlock it to allow modification.";
         lMyButtons = [TICKED + APPLOCK];
     }
     else
     {
-        sPrompt = "\n\nChange looks, adjustment and size.\n\nAdjustments are based on the neck attachment spot.";
+        sPrompt = "\nChange the looks, adjustment and size of your "+CTYPE+".\n\nwww.opencollar.at/appearance";
     
-        lMyButtons = [UNTICKED + APPLOCK];
-        lMyButtons += llListSort(g_lLocalButtons + g_lButtons, 1, TRUE);
+        lMyButtons = [UNTICKED + APPLOCK] + g_lButtons + g_lLocalButtons ;
+        //lMyButtons += llListSort(g_lLocalButtons + g_lButtons, 1, TRUE);
     }
     key kMenuID = Dialog(kAv, sPrompt, lMyButtons, [UPMENU], 0, iAuth);
     integer iMenuIndex = llListFindList(g_lMenuIDs, [kAv]);
@@ -422,7 +426,7 @@ default
     {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+            //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
             g_lButtons = []; // flush buttons before
             llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, "");
         }
@@ -449,7 +453,7 @@ default
                 //give this plugin's menu to id
                 if (kID!=g_kWearer && iNum!=COMMAND_OWNER)
                 {
-                    Notify(kID,"You are not allowed to change the collar's appearance.", FALSE);
+                    Notify(kID,"You are not allowed to change the "+CTYPE+"'s appearance.", FALSE);
                     llMessageLinked(LINK_SET, iNum, "menu " + g_sParentMenu, kID);
                 }
                 else DoMenu(kID, iNum);
@@ -463,7 +467,7 @@ default
             {
                 if (kID!=g_kWearer && iNum!=COMMAND_OWNER)
                 {
-                    Notify(kID,"You are not allowed to change the collar's appearance.", FALSE);
+                    Notify(kID,"You are not allowed to change the "+CTYPE+"'s appearance.", FALSE);
                 }
                 else DoMenu(kID, iNum);
             }
@@ -471,11 +475,11 @@ default
             {
                 if (kID!=g_kWearer && iNum!=COMMAND_OWNER)
                 {
-                    Notify(kID,"You are not allowed to change the collar's rotation.", FALSE);
+                    Notify(kID,"You are not allowed to change the "+CTYPE+"'s rotation.", FALSE);
                 }
                 else if (g_iAppLock)
                 {
-                    Notify(kID,"The appearance of the collar is locked. You cannot access this menu now!", FALSE);
+                    Notify(kID,"The appearance of the "+CTYPE+" is locked. You cannot access this menu now!", FALSE);
                     DoMenu(kID, iNum);
                 }
                 else RotMenu(kID, iNum);
@@ -484,11 +488,11 @@ default
             {
                 if (kID!=g_kWearer && iNum!=COMMAND_OWNER)
                 {
-                    Notify(kID,"You are not allowed to change the collar's position.", FALSE);
+                    Notify(kID,"You are not allowed to change the "+CTYPE+"'s position.", FALSE);
                 }
                 else if (g_iAppLock)
                 {
-                    Notify(kID,"The appearance of the collar is locked. You cannot access this menu now!", FALSE);
+                    Notify(kID,"The appearance of the "+CTYPE+" is locked. You cannot access this menu now!", FALSE);
                     DoMenu(kID, iNum);
                 }
                 else PosMenu(kID, iNum);
@@ -497,11 +501,11 @@ default
             {
                 if (kID!=g_kWearer && iNum!=COMMAND_OWNER)
                 {
-                    Notify(kID,"You are not allowed to change the collar's size.", FALSE);
+                    Notify(kID,"You are not allowed to change the "+CTYPE+"'s size.", FALSE);
                 }
                 else if (g_iAppLock)
                 {
-                    Notify(kID,"The appearance of the collar is locked. You cannot access this menu now!", FALSE);
+                    Notify(kID,"The appearance of the "+CTYPE+" is locked. You cannot access this menu now!", FALSE);
                     DoMenu(kID, iNum);
                 }
                 else SizeMenu(kID, iNum);
@@ -702,7 +706,7 @@ default
                                 // ResSize requested
                                 if (g_iScaleFactor == 100)
                                 {
-                                    Notify(kAv, "Resizing canceled; the collar is already at original size.", FALSE); 
+                                    Notify(kAv, "Resizing canceled; the "+CTYPE+" is already at original size.", FALSE); 
                                 }
                                 else
                                 {

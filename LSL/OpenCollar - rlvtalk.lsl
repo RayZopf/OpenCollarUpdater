@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - rlvtalk                               //
-//                                 version 3.958                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -140,7 +142,7 @@ Menu(key kID, integer iAuth)
 
     //build prompt showing current settings
     //make enable/disable buttons
-    string sPrompt = "\n\nCurrent Settings: \n";
+    string sPrompt = "\nwww.opencollar.at/talk\n";
     list lButtons;
     //Debug(llDumpList2String(g_lSettings, ","));
     integer n;

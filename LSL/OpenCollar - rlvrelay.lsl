@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - rlvrelay                              //
-//                                 version 3.958                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +79,6 @@ list g_lAvBlackListNames=[];
 
 integer g_iRLV=FALSE;
 list g_lQueue=[];
-integer g_iQApproxSize; //Approximation of the queue size (in bytes)
 integer QSTRIDES=3;
 integer g_iListener=0;
 integer g_iAuthPending = FALSE;
@@ -178,7 +179,7 @@ SaveSettings()
         +",avwhitelistnames:"+llDumpList2String(g_lAvWhiteListNames,"/");
     if ( g_lAvBlackList != [] ) sNewSettings+=",avblacklist:"+llDumpList2String(g_lAvBlackList,"/")
         +",avblacklistnames:"+llDumpList2String(g_lAvBlackListNames,"/");
-    llMessageLinked(LINK_SET, LM_SETTING_SAVE, sNewSettings, "");
+    llMessageLinked(LINK_SET, LM_SETTING_SAVE, sNewSettings, NULL_KEY);
 }
 
 UpdateSettings(string sSettings)
@@ -260,7 +261,6 @@ Dequeue()
         if (g_lQueue==[])
         {
             llSetTimerEvent(g_iGarbageRate);
-            g_iQApproxSize = 0;
             return;
         }
         sCurIdent=llList2String(g_lQueue,0);
@@ -356,7 +356,7 @@ SafeWord()
 {
     if (g_iSafeMode)
     {
-        llMessageLinked(LINK_SET, COMMAND_RELAY_SAFEWORD, "",NULL_KEY);
+        llMessageLinked(LINK_SET, COMMAND_RELAY_SAFEWORD, "","");
         Notify(g_kWearer, "You have safeworded",TRUE);
         g_lTempBlackList=[];
         g_lTempWhiteList=[];
@@ -381,7 +381,7 @@ SafeWord()
 //----Menu functions section---//
 Menu(key kID, integer iAuth)
 {
-    string sPrompt = "\n\nCurrent mode is: " + Mode2String(FALSE);
+    string sPrompt = "\nwww.opencollar.at/relay\n\nCurrent mode is: " + Mode2String(FALSE);
     list lButtons = llDeleteSubList(["Off", "Restricted", "Ask", "Auto"],g_iBaseMode,g_iBaseMode);
     if (g_lSources != []) lButtons = llDeleteSubList(lButtons,0,0);
     if (g_iPlayMode) lButtons+=["☒ Playful"];
@@ -415,7 +415,7 @@ Menu(key kID, integer iAuth)
 MinModeMenu(key kID, integer iAuth)
 {
     list lButtons = llDeleteSubList(["Off", "Restricted", "Ask", "Auto"],g_iMinBaseMode,g_iMinBaseMode);
-    string sPrompt = "\n\nCurrent minimal authorized relay mode is: " + Mode2String(TRUE);
+    string sPrompt = "\nwww.opencollar.at/relay\n\nCurrent minimal authorized relay mode is: " + Mode2String(TRUE);
     if (g_iMinPlayMode) lButtons+=["☒ Playful"];
     else lButtons+=["☐ Playful"];
     if (g_iMinLandMode) lButtons+=["☒ Land"];
@@ -609,14 +609,14 @@ integer UserCommand(integer iNum, string sStr, key kID)
     else if (iNum!=COMMAND_OWNER&&kID!=g_kWearer)
         llInstantMessage(kID, "Sorry, only the wearer of the " + CTYPE + " or their owner can change the relay options.");
     else if (sStr=="safeword") SafeWord();
-    else if (sStr=="relay getdebug")
+    else if (sStr=="getdebug")
     {
         g_kDebugRcpt = kID;
         Notify(kID, "Relay messages will be forwarded to "+llKey2Name(kID)+".", TRUE);
 
         return TRUE;
     }
-    else if (sStr=="relay stopdebug")
+    else if (sStr=="stopdebug")
     {
         g_kDebugRcpt = NULL_KEY;
         Notify(kID, "Relay messages will not forwarded anymore.", TRUE);
@@ -752,7 +752,7 @@ default
     {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
         {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, NULL_KEY);
         }
         else if (iNum==CMD_ADDSRC)
         {
@@ -987,25 +987,32 @@ default
         if (iAuth==-1) return;
         else if (iAuth==1) {HandleCommand(sIdent,kID,sMsg,TRUE); llSetTimerEvent(g_iGarbageRate);}
         else if (g_iBaseMode == 2)
-        {
-            if (g_iQApproxSize < 2500) //keeps margin for this event + next arriving chat message
+        {   
+//            llOwnerSay("Free memory before queueing: "+(string)(llGetMemoryLimit() - llGetUsedMemory()));
+//            if (llGetMemoryLimit() - llGetUsedMemory()> 5000) //keeps margin for this event + next arriving chat message
+//            {
+            g_lQueue += [sIdent, kID, sMsg];
+            sMsg = ""; sIdent="";
+//            llOwnerSay("Used memory after queueing: "+(string)(llGetMemoryLimit() -llGetUsedMemory()));
+//            }
+//            else
+            if (llGetMemoryLimit() - llGetUsedMemory()< 3927) //keeps margin for this event + next arriving chat message
             {
-                g_iQApproxSize += llStringLength(sIdent+ sMsg);
-                g_lQueue += [sIdent, kID, sMsg];
                 sMsg = ""; sIdent="";
-                if (!g_iAuthPending) Dequeue();
-            }
-            else
-            {
-                llOwnerSay("Relay queue saturated. Dropping all requests from "+ llKey2Name(kID) +". Relay frozen for the next 20s.");
-                sMsg = ""; sIdent="";
-                g_lTempBlackList+=[kID];
-                if (kUser) g_lTempUserBlackList+=[kUser];
+                key kOldestId = llList2Key(g_lQueue, 1);  // It's actually more likely we want to drop the old request we completely forgot about rather than the newest one that will be forgotten because of some obscure memory limit.
+//                key kOldUser = NULL_KEY;
+//                if (llGetSubString(sMsg,0,6)=="!x-who/") kOldUser=SanitizeKey(llGetSubString(llList2String(g_lQueue, 2),7,42));
+                llOwnerSay("Relay queue saturated. Dropping all requests from oldest source ("+ llKey2Name(kOldestId) +").");
+                g_lTempBlackList+=[kOldestId];
+//                if (kUser) g_lTempUserBlackList+=[kUser];
                 CleanQueue();
-                g_iRecentSafeword = TRUE;
-                refreshRlvListener();
-                llSetTimerEvent(30.);
+//                llOwnerSay("Used memory after cleaning queue: "+(string)(llGetMemoryLimit() -llGetUsedMemory()));
+//                g_iRecentSafeword = TRUE;
+//                refreshRlvListener();
+//                llSetTimerEvent(30.);
+// SA: maybe some of the above should be re-added to "punish" spammers more aggressively.
             }
+            if (!g_iAuthPending) Dequeue();
         }
         else if (g_iPlayMode) {HandleCommand(sIdent,kID,sMsg,FALSE); llSetTimerEvent(g_iGarbageRate);}
     }

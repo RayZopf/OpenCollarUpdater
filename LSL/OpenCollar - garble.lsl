@@ -1,18 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - garble                               //
-//                                 version 3.958                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-// Garbler plug-in for the OpenCollar Project (c), original by Joy Stipe
-
-//v3.601 by Joy Stipe 2010/07/28
+//original by Joy Stipe
 
 //OpenCollar MESSAGE MAP
 // messages for authenticating users
@@ -45,9 +45,9 @@ integer RLV_CMD = 6000;
 integer RLV_REFRESH = 6001;//RLV plugins should reinstate their restrictions upon receiving this message.
 integer RLV_CLEAR = 6002;//RLV plugins should clear their restriction lists upon receiving this message.
 
-string g_sParentMenu = "AddOns";
-string GARBLE = "Garble On";
-string UNGARBLE = "Garble Off";
+string g_sParentMenu = "Apps";
+string GARBLE = "☐ Garble";
+string UNGARBLE = "☒ Garble";
 integer g_nDebugMode=FALSE; // set to TRUE to enable Debug messages
 
 string SAFE = "RED";
@@ -133,9 +133,10 @@ bind(key _k, integer auth)
         if (_k != gkWear) llOwnerSay(llKey2Name(_k) + " ordered you to be quiet");
         Notify(_k, gsWear + "'s speech is now garbled", FALSE);
     }
+    llMessageLinked(LINK_THIS, auth, "menu "+g_sParentMenu, _k);
 }
 
-release(key _k)
+release(key _k ,integer auth)
 {
     bOn = g_iBinder = FALSE;
     g_kBinder = NULL_KEY;
@@ -149,6 +150,7 @@ release(key _k)
         if (_k != gkWear) llOwnerSay("You are free to speak again");
         Notify(_k, gsWear + " is allowed to talk again", FALSE);
     }
+    llMessageLinked(LINK_THIS, auth, "menu "+g_sParentMenu, _k);
 }
 
 integer UserCommand(integer iNum, string sStr, key kID)
@@ -159,14 +161,14 @@ integer UserCommand(integer iNum, string sStr, key kID)
         if (bOn) Notify(kID, "Garbled.", FALSE);
         else Notify(kID, "Not Garbled.", FALSE);
     }
-    else if (sStr == "menu " + GARBLE || llToLower(sStr) == llToLower(GARBLE))
+    else if (sStr == "menu " + GARBLE || llToLower(sStr) == "garble on")
     {
         if (bOn && g_kBinder == kID) Notify(kID, "I can't garble 'er any more, Jim! She's only a subbie!", FALSE);
         else if (iNum > g_iBinder) bind(kID, iNum);
     }
-    else if (sStr == "menu " + UNGARBLE || llToLower(sStr) == llToLower(UNGARBLE))
+    else if (sStr == "menu " + UNGARBLE || llToLower(sStr) == "garble off")
     {
-        if (iNum > g_iBinder || g_kBinder == kID) release(kID);
+        if (iNum > g_iBinder || g_kBinder == kID) release(kID,iNum);
         else Notify(kID, "Sorry, " + llKey2Name(kID) + ", but only the person who activated the garbler, or one who outranks them, may release the garbler.", FALSE);
     }
     else return FALSE;
@@ -184,7 +186,7 @@ default
         gkWear = llGetOwner();
         gsWear = llKey2Name(gkWear);
         giCRC = llRound(llFrand(499) + 1);
-        if (bOn) release(gkWear);
+        if (bOn) release(gkWear,0);
         llMessageLinked(LINK_THIS, LM_SETTING_REQUEST, "listener_safeword", "");
         llMessageLinked(LINK_THIS, LM_SETTING_REQUEST, GetScriptID() + "Binder", "");
         //llSleep(1.0);
@@ -236,7 +238,7 @@ default
             if (bOn) llMessageLinked(LINK_SET, RLV_CMD, "redirchat:" + (string)giCRC + "=add,chatshout=n,sendim=n", NULL_KEY);
             else llMessageLinked(LINK_SET, RLV_CMD, "chatshout=y,sendim=y,redirchat:" + (string)giCRC + "=rem", NULL_KEY);
         }
-        else if (iM == RLV_CLEAR) release(kM);
+        else if (iM == RLV_CLEAR) release(kM,iL);
         else if (iM == LM_SETTING_RESPONSE)
         {
             list lP = llParseString2List(sM, ["="], []);
@@ -256,7 +258,7 @@ default
                 SetPrefix(sV);
             }
         }
-        else if (iM == LM_SETTING_EMPTY && sM == GetScriptID() + "Binder") release(kM);
+        else if (iM == LM_SETTING_EMPTY && sM == GetScriptID() + "Binder") release(kM,iL);
         else if (iM == LM_SETTING_SAVE) // Have to update the safeword if it is changed between resets
         {
             integer iS = llSubStringIndex(sM, "=");
@@ -269,6 +271,6 @@ default
                 SetPrefix(val);
             }
         }
-        if (iM == COMMAND_SAFEWORD) release(kM);
+        if (iM == COMMAND_SAFEWORD) release(kM,iL);
     }
 }

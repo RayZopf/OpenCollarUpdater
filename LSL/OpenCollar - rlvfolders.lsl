@@ -2,16 +2,17 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                            OpenCollar - rlvfolders                             //
-//                                 version 3.958                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-//3.934 removed many newlines from browse folder prompts, it was getting ridiculously big! -MD
 string g_sParentMenu = "Un/Dress";
 
 list g_lChildren = ["Browse #RLV", "#RLV History"];
@@ -186,14 +187,14 @@ string lockUnsharedButton(integer iLockNum, integer iAuth)
 
 HistoryMenu(key kAv, integer iAuth)
 {
-    g_kHistoryMenuID = Dialog(kAv, "Recently worn #RLV folders:", g_lHistory, [UPMENU], 0, iAuth);
+    g_kHistoryMenuID = Dialog(kAv, "\nRecently worn #RLV folders:", g_lHistory, [UPMENU], 0, iAuth);
 }
 
 
 RootActionsMenu(key kAv, integer iAuth)
 {
     list lActions = [lockUnsharedButton(0, iAuth), lockUnsharedButton(1, iAuth), "Save", "Restore"];
-    string sPrompt = "\n\nYou are at the #RLV shared root.\n\nFrom here, you can restrict wearing or removing not shared items, you can also save the list of worn shared folders or make the currently saved list be worn again.\n\nWhat do you want to do?";
+    string sPrompt = "\nwww.opencollar.at/folders\n\nYou are at the #RLV shared root.\n\nFrom here, you can restrict wearing or removing not shared items, you can also save the list of worn shared folders or make the currently saved list be worn again.\n\nWhat do you want to do?";
     g_kRootActionsID = Dialog(kAv, sPrompt, lActions, [UPMENU], 0, iAuth);
 }
 
@@ -225,11 +226,11 @@ FolderActionsMenu(integer iState, key kAv, integer iAuth)
         if ( iStateSub == 2 || iStateSub == 3) // there are items that can be removed from descendant folders
             lActions += [DETACH_ALL,  lockFolderButton(iLock, 3, iAuth)];
     }
-    string sPrompt = "\n\nCurrent folder is ";
+    string sPrompt = "\nwww.opencollar.at/folders\n\nCurrent folder is ";
     if (g_sCurrentFolder == "") sPrompt += "root";
     else sPrompt += g_sCurrentFolder;
     sPrompt += ".\n";
-    sPrompt += "\nWhat do you want to do?\n\n";
+    sPrompt += "\nWhat do you want to do?";
 
     g_kActionsID = Dialog(kAv, sPrompt, lActions, [UPMENU], 0, iAuth);
 }
@@ -349,7 +350,7 @@ FolderBrowseMenu(string sStr)
 {
     g_iAsyncMenuRequested = FALSE;
     list lUtilityButtons = [UPMENU];
-    string sPrompt = "\n\nCurrent folder is ";
+    string sPrompt = "\nwww.opencollar.at/folders\n\nCurrent folder is ";
     if (g_sCurrentFolder == "")
     {
         sPrompt += "root";

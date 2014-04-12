@@ -6,12 +6,11 @@
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
-
-//3.935 Bugfix for sending collarversion to menu script, 1 and 0 instead of TRUE and FALSE;
-//3.940 doesn't give regular updaters, informs user where to get an updater, and get updater button gives current updater
 
 // This script does 4 things:
 // 1 - On rez, check whether there's an update to the collar available.
@@ -245,8 +244,7 @@ integer UserCommand(integer iNum, string str, key id) // here iNum: auth value, 
         }
         else if (submenu == BTN_GET_UPDATE)
         {
-            llLoadURL(id,g_sHowToUpdate,"https://marketplace.secondlife.com/p/Open
-Collar-Updater/5493698");
+            llLoadURL(id,g_sHowToUpdate,"https://marketplace.secondlife.com/p/OpenCollar-Updater/5493698");
         }
     }
     else if (str == "update")
@@ -305,6 +303,7 @@ default
             my_version = data;        
             //Debug("version:"+my_version);
             // now request the version from github.
+            llMessageLinked(LINK_SET, LM_SETTING_DELETE, "collarversion", "");
             CheckForUpdate();            
         }
     }
@@ -378,12 +377,12 @@ default
     {
         //the command was given by either owner, secowner, group member, or wearer
         if (UserCommand(num, str, id)) return;
-        else if (num == MENUNAME_REQUEST && str == PARENT_MENU)
-        {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_DO_UPDATE, "");
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_GET_UPDATE, "");
+        //else if (num == MENUNAME_REQUEST && str == PARENT_MENU)
+        //{
+        //    llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_DO_UPDATE, "");
+        //    llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_GET_UPDATE, "");
             // llMessageLinked(LINK_SET, MENUNAME_RESPONSE, PARENT_MENU + "|" + BTN_GET_VERSION, "");
-        }
+        //}
         else if (num == DIALOG_RESPONSE)
         {
             if (id == g_kMenuID)

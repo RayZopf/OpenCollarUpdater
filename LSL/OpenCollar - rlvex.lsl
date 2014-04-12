@@ -1,24 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - rlvex                                //
-//                                 version 3.958                                 //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
-
-
-//3.936 Bugfixes:  1. Reported issue, message about UUID not found when trying to add other. I haven't found this to be repeatable, but I have managed to get it to do it once. Increased llRequestAgentInfo timer to 4 seconds from 0.5, because 0.5 may simply be too short to reliably get a response from the dataserver, particularly in a laggy sim. Hopefully this will remove the issue, but let's monitor this.  2. Reported issue in secowner exceptions not being set. Typo in settings was looking for auth_secowner rather than auth_secowners in LM_SETTINGS_RESPONSE, so secowners list was not getting filled.
-
-
-
-//3.934 notes. I've overhauled the menu appearance as it wasn't really that easy to understand, following the RLV terminology which is a bit of a headache for scripters, let alone users. Descriptions are clearer and now represent the current state, and we use unicode ☐ and ☒ to indicate selected/deselected state on the buttons, common with unicode enhancements to other menus. ALL buttons indicators swapped to make clearer the effect of pressing them, and the person to whom the exceptions will be added/removed is now named at the top of the menu. Finally, I've cleared up remenuing a little. When someone who is not an owner/secowner is set to default and removed from the list, we now return the personlist, and when a new person is added, we remenu. - Medea
-
-//3.934 notes. Removed SetOwnerExs as it's never called. Added a check to setAllExs to  avoid setting exceptions for wearer (for example if the wearer is set as an owner) as they're pointless. - Medea
-
 
 key g_kLMID;//store the request id here when we look up a LM
 string CTYPE = "collar";
@@ -194,7 +186,7 @@ Menu(key kID, string sWho, integer iAuth)
     }
     
     list lButtons = ["Owner", "Secowner", "Other"];
-    string sPrompt = "\n\nSet exemptions to the restrictions for RLV commands. Exemptions can be changed for owners, secowners and specific ones for other people. Use \"Other\" to set the specific exemptions for them later.";
+    string sPrompt = "\nSet exemptions to the restrictions for RLV commands. Exemptions can be changed for owners, secowners and specific ones for other people. Use \"Other\" to set the specific exemptions for them later.\n\nwww.opencollar.at/exceptions";
     g_kMenuID = Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 
@@ -207,7 +199,7 @@ PersonMenu(key kID, list lPeople, string sType, integer iAuth)
         return;
     }
     //g_sRequestType = sType;
-    string sPrompt = "\n\nChoose the person to change settings on. Add others with the \"Add\" button";
+    string sPrompt = "\nChoose the person to change settings on. Add others with the \"Add\" button";
     list lButtons = ["Add"];
     integer iNum= llGetListLength(lPeople);
     integer n;
@@ -368,6 +360,7 @@ FetchAvi(integer auth, string type, string name, key user)
     }
     if (llGetListLength(exclude))
         out += "|" + llDumpList2String(exclude, ",");
+    g_iAuth=auth;
     llMessageLinked(LINK_THIS, FIND_AGENT, out, REQUEST_KEY = llGenerateKey());
 }
 

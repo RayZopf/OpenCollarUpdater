@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - camera                               //
-//                                 version 3.934                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
-
-//3.927 MD: added perms check before attempting to clear camera params in case of reset when collar not worn.
 
 //allows dom to set different camera mode
 //responds to commands from modes list
@@ -18,7 +18,7 @@
 key g_kWearer;
 integer g_iLastNum;
 string g_sMyMenu = "Camera";
-string g_sParentMenu = "AddOns";
+string g_sParentMenu = "Apps";
 key g_kMenuID;
 string g_sCurrentMode = "default";
 float g_fReapeat = 0.5;
@@ -159,7 +159,7 @@ key Dialog(key kRCPT, string sPrompt, list lChoices, list lUtilityButtons, integ
 
 CamMenu(key kID, integer iAuth)
 {
-    string sPrompt = "\n\nCurrent camera mode is " + g_sCurrentMode + ".\n";
+    string sPrompt = "\nCurrent camera mode is " + g_sCurrentMode + ".\n\nwww.opencollar.at/camera";
     list lButtons = ["CLEAR"];
     integer n;
     integer stop = llGetListLength(g_lModes);    

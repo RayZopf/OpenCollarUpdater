@@ -1,36 +1,25 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                               OpenCollar - bell                                //
-//                                 version 3.957                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-//3.927 MD: Update g_kOwners in on_rez event, as we don't necessarily reset this script and currently we may get failed permission requests targeting the wrong avatar! See line 513. Added check for runaway, if bell should be hidden, sleep for 4 seconds then re-hide the bell elements. This is to avoid other scripts resetting visibility. See line 712. Added changed event: INVENTORY changes mean more sounds may be available, so redo prepareSounds(), and LINK to redo BuildBellElementList(). See line 753
-
-//Collar Cuff Menu
-
-//=============================================================================
-//== OC Bell Plugin - Adds bell sounds while moving to the collar, allows to adjust vol, sound and timing
-//== as well to switch them off and hide the bell
-//==
-//== Note to Designers
-//== Plugin offers option to show/hide the bell if there are prims named "Bell"
-//== Plugin has a few default sounds, you can add more by putting them in the collar. The plugin scan for sounds starting with "bell_", f.i. "bell_kitty1"
-//==
-//== 2009-01-30 Cleo Collins - 1. draft
-//==
-//==
-//=============================================================================
+//scans for sounds starting with: bell_
+//show/hide for elements named: Bell
+//2009-01-30 Cleo Collins - 1. draft
 
 integer g_iDebugging=FALSE;
 
 string g_sSubMenu = "Bell";
-string g_sParentMenu = "AddOns";
+string g_sParentMenu = "Apps";
 key g_kDialogID;
 
 list g_lLocalButtons = ["Vol +","Vol -","Delay +","Delay -"," Next Sound","  Quick Help","Ring it!"];
@@ -182,7 +171,7 @@ integer nStartsWith(string sHaystack, string sNeedle) // http://wiki.secondlife.
 
 DoMenu(key kID, integer iAuth)
 {
-    string sPrompt = "\n\n";
+    string sPrompt = "\n";
     // sPrompt += "(Menu will time out in " + (string)g_iTimeOut + " seconds.)\n";
     list lMyButtons = g_lLocalButtons + g_lButtons;
 
@@ -223,6 +212,7 @@ DoMenu(key kID, integer iAuth)
     sPrompt += "The volume of the bell is now: "+(string)((integer)(g_fVolume*10))+"/10.\n";
     sPrompt += "The bell rings every "+llGetSubString((string)g_fSpeed,0,2)+" seconds when moving.\n";
     sPrompt += "Currently used sound: "+(string)(g_iCurrentBellSound+1)+"/"+(string)g_iBellSoundCount+"\n";
+    sPrompt +="\nwww.opencollar.at/bell";
 
     lMyButtons = llListSort(lMyButtons, 1, TRUE);
 

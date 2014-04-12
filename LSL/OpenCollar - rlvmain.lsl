@@ -1,16 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - rlvmain                               //
-//                                 version 3.958                                  //
+//                                 version 3.960                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
 // ------------------------------------------------------------------------------ //
-// ©   2008 - 2013  Individual Contributors and OpenCollar - submission set free™ //
+// ©   2008 - 2014  Individual Contributors and OpenCollar - submission set free™ //
+// ------------------------------------------------------------------------------ //
+//                    github.com/OpenCollar/OpenCollarUpdater                     //
 // ------------------------------------------------------------------------------ //
 ////////////////////////////////////////////////////////////////////////////////////
 
-//3.934: Something situation could cause the viewer check to get stuck. Not clear what, but I've thrown in a few robustness measures that hopefully should sort that out.
 //new viewer checking method, as of 2.73
 //on rez, restart script
 //on script start, query db for rlvon setting
@@ -149,8 +150,8 @@ DoMenu(key kID, integer iAuth)
         lButtons += [TURNON];
     }
 
-    string sPrompt = "\n\n- Restrained Love Viewer Options -\n";
-    if (g_iRlvVersion) sPrompt += "\n- Detected version of RLV API: "+g_sRlvVersionString;
+    string sPrompt = "\nRestrained Love Viewer Options\n";
+    if (g_iRlvVersion) sPrompt += "Detected Version of RLV: "+g_sRlvVersionString+"\n\nwww.opencollar.at/rlv";
     kMenuID = Dialog(kID, sPrompt, lButtons, [UPMENU], 0, iAuth);
 }
 string PrettyVersion(string iVersion)
@@ -535,10 +536,10 @@ default{
         {
             CheckVersion(FALSE);
         }
-        else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
-        {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
-        }
+        //else if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu)
+        //{
+        //   llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+        //}
         else if (iNum >= COMMAND_OWNER && iNum <= COMMAND_WEARER && sStr == "menu "+g_sSubMenu)
         {   //someone clicked "RLV" on the main menu.  Tell them we're not ready yet.
             Notify(kID, "Still querying for viewer version.  Please try again in a minute.", FALSE);
@@ -652,6 +653,7 @@ state checked {
         //we only need to request submenus if rlv is turned on and running
         if (g_iRLVOn && g_iViewerCheck)
         {   //ask RLV plugins to tell us about their rlv submenus
+            g_lMenu = [] ; // flush submenu buttons
             llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, "");
             //tell rlv plugins to reinstate restrictions  (and wake up the relay listener... so that it can at least hear !pong's!
             llMessageLinked(LINK_SET, RLV_REFRESH, "", NULL_KEY);
@@ -671,12 +673,14 @@ state checked {
             llSetTimerEvent(2);
         }
         // Ensure that menu script knows we're here.
-        llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+        //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
     }
 
     link_message(integer iSender, integer iNum, string sStr, key kID) {
         if (iNum == MENUNAME_REQUEST && sStr == g_sParentMenu) {
-            llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+            //llMessageLinked(LINK_SET, MENUNAME_RESPONSE, g_sParentMenu + "|" + g_sSubMenu, "");
+            g_lMenu = [] ; // flush submenu buttons
+            llMessageLinked(LINK_SET, MENUNAME_REQUEST, g_sSubMenu, "");
         }
         else if (iNum == COMMAND_NOAUTH) return; // SA: TODO remove later
         else if (UserCommand(iNum, sStr, kID)) return;
