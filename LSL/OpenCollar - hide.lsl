@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                               OpenCollar - hide                                //
-//                                 version 3.960                                  //
+//                                 version 3.961                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -313,7 +313,8 @@ default
 {
     state_entry()
     {
-        g_iAllAlpha = llCeil(llGetAlpha(ALL_SIDES));
+        g_iAllAlpha=0;
+        if (llGetAlpha(ALL_SIDES)>0) g_iAllAlpha=1;
         
         g_sScript = llStringTrim(llList2String(llParseString2List(llGetScriptName(), ["-"], []), 1), STRING_TRIM) + "_";
         g_kWearer = llGetOwner();

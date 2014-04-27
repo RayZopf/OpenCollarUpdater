@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                               OpenCollar - bell                                //
-//                                 version 3.960                                  //
+//                                 version 3.961                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -511,6 +511,7 @@ default
     {
         g_kWearer=llGetOwner();
         g_sSubPrefix=AutoPrefix();
+        if (g_iBellOn) llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
     }
     link_message(integer iSender, integer iNum, string sStr, key kID)
     {
@@ -559,11 +560,11 @@ default
                 if (sToken == "on")
                 {
                     g_iBellOn=(integer)sValue;
-                    if (g_iBellOn & !g_iHasControl)
+                    if (g_iBellOn && !g_iHasControl)
                     {
                         llRequestPermissions(g_kWearer,PERMISSION_TAKE_CONTROLS);
                     }
-                    else if (!g_iBellOn & g_iHasControl)
+                    else if (!g_iBellOn && g_iHasControl)
                     {
                         llReleaseControls();
                         g_iHasControl=FALSE;

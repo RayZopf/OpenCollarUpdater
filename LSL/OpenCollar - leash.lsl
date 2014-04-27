@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                              OpenCollar - leash                                //
-//                                 version 3.960                                  //
+//                                 version 3.961                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -676,6 +676,7 @@ default
         
         DoUnleash();
         //llMessageLinked(LINK_SET, MENUNAME_REQUEST, BUTTON_SUBMENU, ""); //no need 
+        llMessageLinked(LINK_SET, LM_SETTING_REQUEST, RLV_STRING, "");
     }
     
     on_rez(integer start_param) {

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // ------------------------------------------------------------------------------ //
 //                             OpenCollar - couples                               //
-//                                 version 3.960                                  //
+//                                 version 3.961                                  //
 // ------------------------------------------------------------------------------ //
 // Licensed under the GPLv2 with additional requirements specific to Second Life® //
 // and other virtual metaverse environments.  ->  www.opencollar.at/license.html  //
@@ -287,6 +287,7 @@ default
                         //added to stop eventual still going animations
                         StopAnims();
                         //llMessageLinked(LINK_SET, CPLANIM_PERMREQUEST, sCommand, g_kPartner);
+                        llRequestPermissions(g_kPartner, PERMISSION_TRIGGER_ANIMATION);
                         llOwnerSay("Offering to " + sCommand + " " + g_sPartnerName + ".");
                     }
                 }
